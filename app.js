@@ -1,10 +1,10 @@
 var express = require('express');
-var fs = require("fs");
-var md = require("node-markdown").Markdown;
+var fs = require('fs');
 
 var configuration = {
     storeDirectory: 'store'
 };
+var wikisyntax = require('./src/wikisyntax.js').wikisyntax;
 
 var app = module.exports = express.createServer();
 
@@ -46,13 +46,13 @@ app.get('/', function(req, res){
 
 function wikiPage(req, res, next) {
   // TODO: Make sure there can't be any '..' or similar in the filename
-  fs.readFile(configuration.storeDirectory + '/' + req.params.pagename, function(err, text) {
+  fs.readFile(configuration.storeDirectory + '/' + req.params.pagename, function(err, data) {
     if (err) {
       res.render('error', {
         message: "Couldn't read page " + req.params.pagename
       });
     } else {
-      req.pageText = text.toString();
+      req.pageText = data.toString();
       next();
     }
   });
@@ -60,16 +60,16 @@ function wikiPage(req, res, next) {
 
 app.get('/view/:pagename', wikiPage, function(req, res){
   res.render('view', {
-               pagename: req.params.pagename,
-               text: md(req.pageText)
-             });
+    pagename: req.params.pagename,
+    text: wikisyntax(req.pageText)
+  });
 });
 
 app.get('/edit/:pagename', wikiPage, function(req, res){
   res.render('edit', {
-               pagename: req.params.pagename,
-               text: req.pageText
-             });
+    pagename: req.params.pagename,
+    text: req.pageText
+  });
 });
 
 
