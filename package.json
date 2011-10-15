@@ -1,0 +1,10 @@
+{
+    "name": "wiki-toki"
+  , "version": "0.0.1"
+  , "private": true
+  , "dependencies": {
+      "express": "2.4.7"
+    , "less": ">= 0.0.1"
+    , "jade": ">= 0.0.1"
+  }
+}
