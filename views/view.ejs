@@ -1,2 +1,44 @@
-<h1><%= pagename %></h1>
-<%- text %>
+<h1><%= pagename %> <span class="options">(<a id="edit-link" href="/edit/<%= pagename %>">edit</a>)</span></h1>
+<div id="rendered-text"></div>
+<form id="edit-form" style="display: none" action="/save/<%= pagename %>" method="post">
+  <textarea id="raw-text" name="rawText" cols="80" rows="30"><%= rawText %></textarea>
+  <div class="button-bar">
+    <input type="submit" value="Save" />
+    <input id="cancel-button" type="button" value="Cancel" />
+  </div>
+</form>
+<script>
+  $(document).ready(function() {
+    $("#rendered-text").html(wikisyntax($("#raw-text").val()));
+
+    $("#edit-link").click(function() {
+      $("#rendered-text").animate({ width: "45%" }, 400);
+      $("#rendered-text").css("float", "right");
+      $("#edit-form").css("display", "block");
+      $("#raw-text").focus();
+      $("#raw-text").animate({ width: "45%" }, 400);
+      return false;
+    });
+
+    $("#cancel-button").click(function() {
+      $("#raw-text").animate({ width: "0" }, 400);
+      $("#edit-form").css("display", "none");
+      $("#edit-form")[0].reset();
+      $("#rendered-text").html(wikisyntax($("#raw-text").val()));
+      $("#rendered-text").css("float", "none");
+      $("#rendered-text").animate({ width: "100%" }, 400);
+      return false;
+    });
+
+    $("#raw-text").keypress(function() {
+      var target = $("#rendered-text");
+      if (target.data('event-state') !== 'buffered') {
+        target.data('event-state', 'buffered');
+        setTimeout(function() {
+          target.data('event-state', '');
+          target.html(wikisyntax($("#raw-text").val()));
+        }, 1000);
+      }
+    });
+  });
+</script>
