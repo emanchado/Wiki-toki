@@ -1,0 +1,2 @@
+exports.storeDirectory = 'store';
+exports.secretPassphrase = 'some secret passphrase';

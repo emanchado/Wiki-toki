@@ -1,10 +1,7 @@
 var express = require('express');
 var fs = require('fs');
 
-var configuration = {
-  storeDirectory: 'store',
-  secretPassphrase: 'some secret passphrase'
-};
+var configuration = require('./conf.js');
 
 var app = module.exports = express.createServer();
 
