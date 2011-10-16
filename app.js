@@ -1,7 +1,7 @@
 var express = require('express');
 var fs = require('fs');
 
-var configuration = require('conf');
+var configuration = require('config');
 
 var app = module.exports = express.createServer();
 
