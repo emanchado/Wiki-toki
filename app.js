@@ -5,7 +5,6 @@ var configuration = {
   storeDirectory: 'store',
   secretPassphrase: 'some secret passphrase'
 };
-var wikisyntax = require('./src/wikisyntax.js').wikisyntax;
 
 var app = module.exports = express.createServer();
 
@@ -83,8 +82,7 @@ app.all('/list', authentication, function(req, res){
 app.all('/view/:pagename', authentication, wikiPage, function(req, res){
   res.render('view', {
     pagename: req.params.pagename,
-    rawText: req.pageText,
-    renderedText: wikisyntax(req.pageText)
+    rawText: req.pageText
   });
 });
 
