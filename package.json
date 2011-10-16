@@ -4,9 +4,9 @@
   , "private": true
   , "dependencies": {
       "express": "2.4.7"
-    , "less": ">= 0.0.1"
-    , "jade": ">= 0.0.1"
-    , "ejs":  ">= 0.4.3"
-    , "conf": ">= 0"
+    , "less":   ">= 0.0.1"
+    , "jade":   ">= 0.0.1"
+    , "ejs":    ">= 0.4.3"
+    , "config": ">= 0"
   }
 }
