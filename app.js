@@ -94,17 +94,22 @@ app.all('/edit/:pagename', authentication, wikiPage, function(req, res){
 });
 
 app.post('/save/:pagename', authentication, function(req, res){
-  fs.writeFile(pagepath(req.params.pagename),
-               req.body.rawText,
-               function(err) {
-                 if (err) {
-                   res.render('error', {
-                     message: "Couldn't read page " + req.params.pagename
-                   });
-                 } else {
-                   res.redirect('/view/' + req.params.pagename);
-                 }
-               });
+  var newPageContents = req.body.rawText;
+  if (typeof(newPageContents) === 'undefined' || newPageContents === "") {
+    res.redirect('/view/' + req.params.pagename);
+  } else {
+    fs.writeFile(pagepath(req.params.pagename),
+                 newPageContents,
+                 function(err) {
+                   if (err) {
+                     res.render('error', {
+                       message: "Couldn't read page " + req.params.pagename
+                     });
+                   } else {
+                     res.redirect('/view/' + req.params.pagename);
+                   }
+                 });
+  }
 });
 
 
