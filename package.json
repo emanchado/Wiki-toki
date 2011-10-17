@@ -7,6 +7,9 @@
     , "less":   ">= 0.0.1"
     , "jade":   ">= 0.0.1"
     , "ejs":    ">= 0.4.3"
-    , "config": ">= 0"
+  }
+  , "config": {
+      "store-directory":   "store"
+    , "secret-passphrase": "my secret passphrase you will never guess"
   }
 }

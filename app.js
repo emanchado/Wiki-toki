@@ -1,7 +1,10 @@
 var express = require('express');
 var fs = require('fs');
 
-var configuration = require('config');
+var configuration = {
+  secretPassphrase: process.env.npm_package_config__passphrase,
+  storeDirectory:   process.env.npm_package_config_store_directory
+};
 
 var app = module.exports = express.createServer();
 
