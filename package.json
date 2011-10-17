@@ -12,4 +12,5 @@
       "store-directory":   "store"
     , "secret-passphrase": "my secret passphrase you will never guess"
   }
+  , "scripts": { "start": "node server.js" }
 }
