@@ -1,6 +1,7 @@
 <h1><%= pagename %> <span class="options">(<a id="edit-link" href="/edit/<%= pagename %>">edit</a>)</span></h1>
 <div id="rendered-text"></div>
 <form id="edit-form" style="display: none" action="/save/<%= pagename %>" method="post">
+  <a href="http://daringfireball.net/projects/markdown/syntax" target="markdown">Markdown syntax</a>
   <textarea id="raw-text" name="rawText" cols="80" rows="30"><%= rawText %></textarea>
   <div class="button-bar">
     <input type="submit" value="Save" />
@@ -26,7 +27,7 @@
       $("#edit-form")[0].reset();
       $("#rendered-text").html(wikisyntax($("#raw-text").val()));
       $("#rendered-text").css("float", "none");
-      $("#rendered-text").animate({ width: "100%" }, 400);
+      $("#rendered-text").animate({ width: "60%" }, 400);
       return false;
     });
 
