@@ -20,5 +20,5 @@ bother to use Bootstrap. Maybe.
 
 To configure it, you'll have to set the following configuration keys:
 
- wiki-toki:_passphrase = mysecretpassphraseyouwillneverguess
- wiki-toki:store-directory = /path/to/the/store/directory
+    wiki-toki:_passphrase = mysecretpassphraseyouwillneverguess
+    wiki-toki:store-directory = /path/to/the/store/directory
