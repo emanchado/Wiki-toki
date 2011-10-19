@@ -16,9 +16,8 @@ function pagepath(pagename) {
 function wikiPage(req, res, next) {
   fs.readFile(pagepath(req.params.pagename), function(err, data) {
     if (err) {
-      res.render('error', {
-        message: "Couldn't read page " + req.params.pagename
-      });
+      req.pageText = null;
+      next();
     } else {
       req.pageText = data.toString();
       next();
@@ -80,16 +79,20 @@ app.all('/list', authentication, function(req, res){
 });
 
 app.all('/view/:pagename', authentication, wikiPage, function(req, res){
-  res.render('view', {
-    pagename: req.params.pagename,
-    rawText: req.pageText
-  });
+  if (req.pageText === null) {
+    res.redirect('/create/' + req.params.pagename);
+  } else {
+    res.render('view', {
+      pagename: req.params.pagename,
+      rawText: req.pageText
+    });
+  }
 });
 
-app.all('/edit/:pagename', authentication, wikiPage, function(req, res){
-  res.render('edit', {
+app.all('/create/:pagename', authentication, wikiPage, function(req, res){
+  res.render('create', {
     pagename: req.params.pagename,
-    rawText: req.pageText
+    rawText: (req.pageText === null) ? "" : req.pageText
   });
 });
 
