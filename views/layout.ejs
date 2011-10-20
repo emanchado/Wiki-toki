@@ -8,6 +8,13 @@
     <script src="/javascripts/wikisyntax.js"></script>
   </head>
   <body>
-    <%- body %>
+    <div id="topbar">
+      <a href="/">Index</a> |
+      <a href="/list">Page list</a>
+    </div>
+    <hr/>
+    <div id="content">
+      <%- body %>
+    </div>
   </body>
 </html>

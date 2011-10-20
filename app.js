@@ -33,7 +33,7 @@ function authentication(req, res, next) {
       req.session.authenticated = true;
       next();
     } else {
-      res.render('login');
+      res.render('login', {layout: false});
     }
   }
 }
