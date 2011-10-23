@@ -4,8 +4,8 @@ if (typeof(exports) !== 'undefined') {
 
 function wikisyntax(text) {
   var html = markdown.toHTML(text);
-  return html.replace(/[A-Z][a-z]+([A-Z][a-z]*)+/g, function(wikiPageName) {
-    return '<a href="/view/' + wikiPageName + '">' + wikiPageName + '</a>';
+  return html.replace(/\b[A-Z][a-z]+([A-Z][a-z]*)+\b/g, function(pageName) {
+    return '<a href="/view/' + pageName + '">' + pageName + '</a>';
   });
 }
 

@@ -36,5 +36,12 @@ TestCase("Wikisyntax", sinon.testCase({
     var links = this.dom.getElementsByTagName('a');
     assertEquals(1, links.length);
     assertContains('/view/WikiPage', links[0].href);
+  },
+
+  "test should not consider mixedCaseIdentifiers as wiki links": function() {
+    var result = wikisyntax("example of mixedCaseIndentifier");
+    this.dom.innerHTML = result;
+    var links = this.dom.getElementsByTagName('a');
+    assertEquals(0, links.length);
   }
 }));
