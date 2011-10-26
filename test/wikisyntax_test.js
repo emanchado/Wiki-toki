@@ -36,6 +36,27 @@ TestCase("Wikisyntax", sinon.testCase({
     var links = this.dom.getElementsByTagName('a');
     assertEquals(1, links.length);
     assertContains('/view/WikiPage', links[0].href);
+    assertContains('WikiPage',       links[0].text);
+  },
+
+  "test should have wiki links inside formatting": function() {
+    var result = wikisyntax("simple **WikiPage** link");
+    this.dom.innerHTML = result;
+    var links = this.dom.getElementsByTagName('a');
+    assertEquals(1, links.length);
+    assertContains('/view/WikiPage', links[0].href);
+    assertContains('WikiPage',       links[0].text);
+  },
+
+  "test should have several wiki links inside formatting": function() {
+    var result = wikisyntax("simple **WikiPage** link, AnotherWikiPage");
+    this.dom.innerHTML = result;
+    var links = this.dom.getElementsByTagName('a');
+    assertEquals(2, links.length);
+    assertContains('/view/WikiPage',        links[0].href);
+    assertContains('WikiPage',              links[0].text);
+    assertContains('/view/AnotherWikiPage', links[1].href);
+    assertContains('AnotherWikiPage',       links[1].text);
   },
 
   "test should not consider mixedCaseIdentifiers as wiki links": function() {
@@ -43,5 +64,23 @@ TestCase("Wikisyntax", sinon.testCase({
     this.dom.innerHTML = result;
     var links = this.dom.getElementsByTagName('a');
     assertEquals(0, links.length);
+  },
+
+  "test should not linkify link URLs": function() {
+    var result = wikisyntax("link to [the original wiki](http://c2.com/cgi/wiki?WikiWikiWeb)");
+    this.dom.innerHTML = result;
+    var links = this.dom.getElementsByTagName('a');
+    assertEquals(1, links.length);
+    assertEquals("http://c2.com/cgi/wiki?WikiWikiWeb", links[0].href);
+    assertEquals("the original wiki",                  links[0].text);
+  },
+
+  "test should not linkify link texts": function() {
+    var result = wikisyntax("link to [the original WikiWikiWeb](http://example.com/)");
+    this.dom.innerHTML = result;
+    var links = this.dom.getElementsByTagName('a');
+    assertEquals(1, links.length);
+    assertEquals("http://example.com/",      links[0].href);
+    assertEquals("the original WikiWikiWeb", links[0].text);
   }
 }));
