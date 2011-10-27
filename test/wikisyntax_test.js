@@ -36,7 +36,7 @@ TestCase("Wikisyntax", sinon.testCase({
     var links = this.dom.getElementsByTagName('a');
     assertEquals(1, links.length);
     assertContains('/view/WikiPage', links[0].href);
-    assertContains('WikiPage',       links[0].text);
+    assertEquals('WikiPage',         links[0].text);
   },
 
   "test should have several wiki links": function() {
@@ -45,9 +45,9 @@ TestCase("Wikisyntax", sinon.testCase({
     var links = this.dom.getElementsByTagName('a');
     assertEquals(2, links.length);
     assertContains('/view/WikiPage',        links[0].href);
-    assertContains('WikiPage',              links[0].text);
+    assertEquals('WikiPage',                links[0].text);
     assertContains('/view/AnotherWikiPage', links[1].href);
-    assertContains('AnotherWikiPage',       links[1].text);
+    assertEquals('AnotherWikiPage',         links[1].text);
   },
 
   "test should have wiki links inside formatting": function() {
@@ -56,7 +56,7 @@ TestCase("Wikisyntax", sinon.testCase({
     var links = this.dom.getElementsByTagName('a');
     assertEquals(1, links.length);
     assertContains('/view/WikiPage', links[0].href);
-    assertContains('WikiPage',       links[0].text);
+    assertEquals('WikiPage',         links[0].text);
   },
 
   "test should have several wiki links inside formatting": function() {
@@ -65,9 +65,9 @@ TestCase("Wikisyntax", sinon.testCase({
     var links = this.dom.getElementsByTagName('a');
     assertEquals(2, links.length);
     assertContains('/view/WikiPage',        links[0].href);
-    assertContains('WikiPage',              links[0].text);
+    assertEquals('WikiPage',                links[0].text);
     assertContains('/view/AnotherWikiPage', links[1].href);
-    assertContains('AnotherWikiPage',       links[1].text);
+    assertEquals('AnotherWikiPage',         links[1].text);
   },
 
   "test should have wiki links inside and outside formatting": function() {
@@ -76,9 +76,9 @@ TestCase("Wikisyntax", sinon.testCase({
     var links = this.dom.getElementsByTagName('a');
     assertEquals(2, links.length);
     assertContains('/view/WikiPage',        links[0].href);
-    assertContains('WikiPage',              links[0].text);
+    assertEquals('WikiPage',                links[0].text);
     assertContains('/view/AnotherWikiPage', links[1].href);
-    assertContains('AnotherWikiPage',       links[1].text);
+    assertEquals('AnotherWikiPage',         links[1].text);
   },
 
   "test should not consider mixedCaseIdentifiers as wiki links": function() {
