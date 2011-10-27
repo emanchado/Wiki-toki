@@ -11,9 +11,9 @@ function _linkifyWikiNames(tree) {
     if (typeof(tree[i]) === 'object') {
       tree[i] = _linkifyWikiNames(tree[i]);
     } else {
-      var re = new RegExp("\\b[A-Z][a-z]+([A-Z][a-z]*)+\\b", "g");
+      var re = new RegExp("(!)?\\b[A-Z][a-z]+([A-Z][a-z]*)+\\b", "g");
       var m = re.exec(tree[i]);
-      if (m) {
+      if (m && !m[1]) {
         tree.splice(i, 1,
                     tree[i].substr(0, m.index),
                     ["link", {href: "/view/" + m[0]}, m[0]],
