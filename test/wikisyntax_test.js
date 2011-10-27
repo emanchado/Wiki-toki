@@ -39,6 +39,17 @@ TestCase("Wikisyntax", sinon.testCase({
     assertContains('WikiPage',       links[0].text);
   },
 
+  "test should have several wiki links": function() {
+    var result = wikisyntax("simple WikiPage link, AnotherWikiPage");
+    this.dom.innerHTML = result;
+    var links = this.dom.getElementsByTagName('a');
+    assertEquals(2, links.length);
+    assertContains('/view/WikiPage',        links[0].href);
+    assertContains('WikiPage',              links[0].text);
+    assertContains('/view/AnotherWikiPage', links[1].href);
+    assertContains('AnotherWikiPage',       links[1].text);
+  },
+
   "test should have wiki links inside formatting": function() {
     var result = wikisyntax("simple **WikiPage** link");
     this.dom.innerHTML = result;
@@ -49,6 +60,17 @@ TestCase("Wikisyntax", sinon.testCase({
   },
 
   "test should have several wiki links inside formatting": function() {
+    var result = wikisyntax("simple **WikiPage link, AnotherWikiPage**");
+    this.dom.innerHTML = result;
+    var links = this.dom.getElementsByTagName('a');
+    assertEquals(2, links.length);
+    assertContains('/view/WikiPage',        links[0].href);
+    assertContains('WikiPage',              links[0].text);
+    assertContains('/view/AnotherWikiPage', links[1].href);
+    assertContains('AnotherWikiPage',       links[1].text);
+  },
+
+  "test should have wiki links inside and outside formatting": function() {
     var result = wikisyntax("simple **WikiPage** link, AnotherWikiPage");
     this.dom.innerHTML = result;
     var links = this.dom.getElementsByTagName('a');
