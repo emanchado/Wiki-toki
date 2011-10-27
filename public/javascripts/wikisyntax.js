@@ -13,15 +13,19 @@ function _linkifyWikiNames(tree) {
     } else {
       var re = new RegExp("(!)?\\b[A-Z][a-z]+([A-Z][a-z]*)+\\b", "g");
       var m = re.exec(tree[i]);
-      if (m && !m[1]) {
-        tree.splice(i, 1,
-                    tree[i].substr(0, m.index),
-                    ["link", {href: "/view/" + m[0]}, m[0]],
-                    tree[i].substr(re.lastIndex));
-        // We're putting three elements in the place of one, so tweak
-        // the counters
-        i   = i + 1;
-        len = len + 2;
+      if (m) {
+        if (m[1]) {
+          tree[i] = tree[i].substr(0, m.index) + tree[i].substr(m.index + 1);
+        } else {
+          tree.splice(i, 1,
+                      tree[i].substr(0, m.index),
+                      ["link", {href: "/view/" + m[0]}, m[0]],
+                      tree[i].substr(re.lastIndex));
+          // We're putting three elements in the place of one, so tweak
+          // the counters
+          i   = i + 1;
+          len = len + 2;
+        }
       }
     }
   }

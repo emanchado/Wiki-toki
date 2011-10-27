@@ -107,11 +107,13 @@ TestCase("Wikisyntax", sinon.testCase({
   },
 
   "test should not linkify wiki links with a leading '!'": function() {
-    var result = wikisyntax("ToWikiLink! or !WikiLink, that's !TheQuestion");
+    var result = wikisyntax("ToWikiLink! **or !WikiLink, that** is !TheQuestion");
     this.dom.innerHTML = result;
     var links = this.dom.getElementsByTagName('a');
     assertEquals(1, links.length);
     assertContains("/view/ToWikiLink", links[0].href);
     assertEquals("ToWikiLink",         links[0].text);
+    var boldChunk = this.dom.getElementsByTagName('strong');
+    assertEquals("or WikiLink, that", boldChunk[0].innerHTML);
   }
 }));
