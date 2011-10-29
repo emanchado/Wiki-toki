@@ -98,7 +98,8 @@ TestCase("Wikisyntax", sinon.testCase({
   },
 
   "test should not linkify link texts": function() {
-    var result = wikisyntax("link to [the original WikiWikiWeb](http://example.com/)");
+    var result =
+          wikisyntax("link to [the original WikiWikiWeb](http://example.com/)");
     this.dom.innerHTML = result;
     var links = this.dom.getElementsByTagName('a');
     assertEquals(1, links.length);
@@ -107,7 +108,8 @@ TestCase("Wikisyntax", sinon.testCase({
   },
 
   "test should not linkify wiki links with a leading '!'": function() {
-    var result = wikisyntax("ToWikiLink! **or !WikiLink, that** is !TheQuestion");
+    var result =
+          wikisyntax("ToWikiLink! **or !WikiLink, that** is !TheQuestion");
     this.dom.innerHTML = result;
     var links = this.dom.getElementsByTagName('a');
     assertEquals(1, links.length);
@@ -115,5 +117,58 @@ TestCase("Wikisyntax", sinon.testCase({
     assertEquals("ToWikiLink",         links[0].text);
     var boldChunk = this.dom.getElementsByTagName('strong');
     assertEquals("or WikiLink, that", boldChunk[0].innerHTML);
+  },
+
+  "test should linkify URLs": function() {
+    var url = "http://example.com/";
+    var result = wikisyntax("This is an autolink to " + url);
+    this.dom.innerHTML = result;
+    var links = this.dom.getElementsByTagName('a');
+    assertEquals(1, links.length);
+    assertEquals(url, links[0].href);
+    assertEquals(url, links[0].text);
+  },
+
+  "test should not break URLs in links (text or URL)": function() {
+    var url = "http://example.com/";
+    var result =
+          wikisyntax("This is a regular link to [" + url + "](" + url + ")");
+    this.dom.innerHTML = result;
+    var links = this.dom.getElementsByTagName('a');
+    assertEquals(1, links.length);
+    assertEquals(url, links[0].href);
+    assertEquals(url, links[0].text);
+  },
+
+  "test should not use dots, commas or closing parens at the end of URLs when autolinking": function() {
+    var url      = "http://example.com/";
+    var result = wikisyntax("I'm linking to " + url + ", (" + url + ") and " +
+                            url + ".");
+    this.dom.innerHTML = result;
+    var links = this.dom.getElementsByTagName('a');
+    assertEquals(3, links.length);
+    assertEquals(url, links[0].href);
+    assertEquals(url, links[0].text);
+    assertEquals(url, links[1].href);
+    assertEquals(url, links[1].text);
+    assertEquals(url, links[2].href);
+    assertEquals(url, links[2].text);
+  },
+
+  "test should support autolinks and wikilinks in any order": function() {
+    var url      = "http://example.com/";
+    var wikiPage = "WikiExample";
+    var result =
+          wikisyntax("Linking spree: " + url + ", " + wikiPage + " and " +
+                     url + " again");
+    this.dom.innerHTML = result;
+    var links = this.dom.getElementsByTagName('a');
+    assertEquals(3, links.length);
+    assertEquals(url, links[0].href);
+    assertEquals(url, links[0].text);
+    assertContains(wikiPage, links[1].href);
+    assertEquals(wikiPage,   links[1].text);
+    assertEquals(url, links[2].href);
+    assertEquals(url, links[2].text);
   }
 }));
