@@ -12,7 +12,9 @@
 </form>
 <script>
   $(document).ready(function() {
-    $("#rendered-text").html(wikisyntax($("#raw-text").val()));
+    var wikiSyntaxOptions = {wikiPageList: <%- wikiPageListJSON %>};
+    $("#rendered-text").html(wikisyntax($("#raw-text").val(),
+                             wikiSyntaxOptions));
 
     $("#edit-link").click(function() {
       $("#rendered-text").animate({ width: "50%" }, 400);
@@ -26,7 +28,8 @@
       $("#raw-text").animate({ width: "0" }, 400);
       $("#edit-form").css("display", "none");
       $("#edit-form")[0].reset();
-      $("#rendered-text").html(wikisyntax($("#raw-text").val()));
+      $("#rendered-text").html(wikisyntax($("#raw-text").val(),
+                                          wikiSyntaxOptions));
       $("#rendered-text").css("float", "none");
       $("#rendered-text").animate({ width: "60%" }, 400);
       return false;
@@ -38,7 +41,8 @@
         target.data('event-state', 'buffered');
         setTimeout(function() {
           target.data('event-state', '');
-          target.html(wikisyntax($("#raw-text").val()));
+          target.html(wikisyntax($("#raw-text").val(),
+                                 wikiSyntaxOptions));
         }, 1000);
       }
     });

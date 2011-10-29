@@ -7,6 +7,15 @@ function assertContains(msg, containee, container) {
   assertNotEquals(msg, -1, container.indexOf(containee));
 }
 
+function assertDoesntContain(msg, containee, container) {
+  if (typeof(container) === 'undefined') {
+    container = containee;
+    containee = msg;
+    msg       = '"' + container + '" should NOT contain "' + containee + '"';
+  }
+  assertEquals(msg, -1, container.indexOf(containee));
+}
+
 TestCase("Wikisyntax", sinon.testCase({
   setUp: function() {
     this.dom = document.createElement('div');
@@ -170,5 +179,21 @@ TestCase("Wikisyntax", sinon.testCase({
     assertEquals(wikiPage,   links[1].text);
     assertEquals(url, links[2].href);
     assertEquals(url, links[2].text);
+  },
+
+  "test should mark non-existing wiki pages": function() {
+    var wikiPageList = ["WikiIndex", "WikiSomething"];
+    var result =
+          wikisyntax("Linking to WikiSomething, WikiSomethingSomething...",
+                     {wikiPageList: wikiPageList});
+    this.dom.innerHTML = result;
+    var links = this.dom.getElementsByTagName('a');
+    assertEquals(2, links.length);
+    assertContains("WikiSomething",      links[0].href);
+    assertEquals("WikiSomething",        links[0].text);
+    assertDoesntContain("non-existent",  links[0].className);
+    assertContains("WikiSomethingSomething", links[1].href);
+    assertEquals("WikiSomethingSomething",   links[1].text);
+    assertContains("non-existent",           links[1].className);
   }
 }));

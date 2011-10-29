@@ -38,6 +38,18 @@ function authentication(req, res, next) {
   }
 }
 
+function getWikiPageList(cb) {
+  fs.readdir(configuration.storeDirectory, function(err, files) {
+    if (err) {
+      res.render('error', {
+        message: "Couldn't read from directory " + configuration.storeDirectory
+      });
+    } else {
+      cb(files);
+    }
+  });
+}
+
 // Configuration
 app.configure(function(){
   app.set('views', __dirname + '/views');
@@ -65,16 +77,10 @@ app.all('/', authentication, function(req, res){
 });
 
 app.all('/list', authentication, function(req, res){
-  fs.readdir(configuration.storeDirectory, function(err, files) {
-    if (err) {
-      res.render('error', {
-        message: "Couldn't read from directory " + configuration.storeDirectory
-      });
-    } else {
-      res.render('index', {
-        pages: files
-      });
-    }
+  getWikiPageList(function(files) {
+    res.render('index', {
+      pages: files
+    });
   });
 });
 
@@ -82,9 +88,12 @@ app.all('/view/:pagename', authentication, wikiPage, function(req, res){
   if (req.pageText === null) {
     res.redirect('/create/' + req.params.pagename);
   } else {
-    res.render('view', {
-      pagename: req.params.pagename,
-      rawText: req.pageText
+    getWikiPageList(function(files) {
+      res.render('view', {
+        pagename:         req.params.pagename,
+        rawText:          req.pageText,
+        wikiPageListJSON: JSON.stringify(files)
+      });
     });
   }
 });

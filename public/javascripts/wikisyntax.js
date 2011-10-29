@@ -4,22 +4,28 @@ if (typeof(exports) !== 'undefined') {
 
 // Regular expressions for wiki-specific syntax on top of Markdown
 var reWikiPages = new RegExp("(!)?\\b[A-Z][a-z]+([A-Z][a-z]*)+\\b", "g");
-reWikiPages.transformation = function(m) {
-  return m[1] ? m[0].substr(1) : ["link", {href: "/view/" + m[0]}, m[0]];
+reWikiPages.transformation = function(m, options) {
+  var pageName = m[0];
+  var anchorAttrs = {href: "/view/" + pageName};
+  if (options && options.wikiPageList &&
+      options.wikiPageList.indexOf(pageName) === -1) {
+    anchorAttrs['class'] = "non-existent";
+  }
+  return m[1] ? pageName.substr(1) : ["link", anchorAttrs, pageName];
 };
 var reUrl = new RegExp("https?://[a-z0-9.-]+(/([,.]*[a-z0-9/&%-]+)*)?", "gi");
 reUrl.transformation = function(m) { return ["link", {href: m[0]}, m[0]]; };
 
 var extraSyntaxExpressions = [reWikiPages, reUrl];
 
-function _extraMarkup(tree) {
+function _extraMarkup(tree, options) {
   if (tree[0] === "link") {
     return tree;
   }
 
   for (var i = 1, len = tree.length; i < len; i++) {
     if (typeof(tree[i]) === 'object') {
-      tree[i] = _extraMarkup(tree[i]);
+      tree[i] = _extraMarkup(tree[i], options);
     } else {
       var matchingPairs = [];
       for (var j = 0, len2 = extraSyntaxExpressions.length; j < len2; j++) {
@@ -38,7 +44,8 @@ function _extraMarkup(tree) {
       if (firstMatchingPair[1]) {
         tree.splice(i, 1,
                     tree[i].substr(0, firstMatchingPair[1].index),
-                    firstMatchingPair[0].transformation(firstMatchingPair[1]),
+                    firstMatchingPair[0].transformation(firstMatchingPair[1],
+                                                        options),
                     tree[i].substr(firstMatchingPair[0].lastIndex));
         // We're putting three elements in the place of one, so tweak
         // the counters
@@ -51,9 +58,10 @@ function _extraMarkup(tree) {
   return tree;
 }
 
-function wikisyntax(text) {
+function wikisyntax(text, userOptions) {
+  var options = JSON.parse(JSON.stringify(userOptions || {}));
   var tree = markdown.parse(text);
-  return markdown.toHTML(_extraMarkup(tree));
+  return markdown.toHTML(_extraMarkup(tree, options));
 }
 
 if (typeof(exports) !== 'undefined') {
