@@ -6,10 +6,11 @@ if (typeof(exports) !== 'undefined') {
 var reWikiPages = new RegExp("(!)?\\b[A-Z][a-z]+([A-Z][a-z]*)+\\b", "g");
 reWikiPages.transformation = function(m, options) {
   var pageName = m[0];
-  var anchorAttrs = {href: "/view/" + pageName};
+  var anchorAttrs = {href:    "/view/" + pageName,
+                     'class': "wikipage"};
   if (options && options.wikiPageList &&
       options.wikiPageList.indexOf(pageName) === -1) {
-    anchorAttrs['class'] = "non-existent";
+    anchorAttrs['class'] = anchorAttrs['class'] + " non-existent";
   }
   return m[1] ? pageName.substr(1) : ["link", anchorAttrs, pageName];
 };
