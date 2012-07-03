@@ -35,7 +35,7 @@
       return false;
     });
 
-    $("#raw-text").keypress(function() {
+    $("#raw-text").bind('input', function() {
       var target = $("#rendered-text");
       if (target.data('event-state') !== 'buffered') {
         target.data('event-state', 'buffered');
