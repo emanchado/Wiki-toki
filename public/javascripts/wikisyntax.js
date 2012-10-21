@@ -61,10 +61,26 @@ function _extraMarkup(tree, options) {
   return tree;
 }
 
-function wikisyntax(text, userOptions) {
-  var options = JSON.parse(JSON.stringify(userOptions || {}));
-  var tree = markdown.parse(text);
-  return markdown.toHTML(_extraMarkup(tree, options));
+// Moreover, we define and use our own Markdown dialect, to add <s> marks
+var WikiSyntax = markdown.Markdown.dialects.WikiSyntax =
+    markdown.Markdown.subclassDialect(markdown.Markdown.dialects.Gruber);
+
+WikiSyntax.inline['~~'] = function(text) {
+    var m = text.match(/~~([^~]+)~~/);
+    if (m) {
+        var strikeoutBit = [m[0].length, ['s']];
+        Array.prototype.push.apply(strikeoutBit[1], this.processInline(m[1]));
+        return strikeoutBit;
+    } else {
+        return [2, '~~'];
+    }
+};
+markdown.Markdown.buildInlinePatterns(markdown.Markdown.dialects.WikiSyntax.inline);
+
+
+function wikisyntax(text, options) {
+  var tree = markdown.parse(text, 'WikiSyntax');
+  return markdown.toHTML(_extraMarkup(tree, options || {}));
 }
 
 if (typeof(exports) !== 'undefined') {

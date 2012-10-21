@@ -190,4 +190,33 @@ describe("Wikisyntax", function() {
     expect(links[1].text).toEqual("WikiSomethingSomething");
     expect("non-existent").toBeSubStringOf(links[1].className);
   });
+
+  it("should recognise strike-out marks", function() {
+    var result = wikisyntax("You're an ~~idiot~~ troubled individual.");
+    this.dom.innerHTML = result;
+    var strikeoutBits = this.dom.getElementsByTagName('s');
+    expect(strikeoutBits.length).toEqual(1);
+    expect(strikeoutBits[0].innerHTML).toEqual('idiot');
+  });
+
+  it("should recognise strike-out marks with WikiLinks inside", function() {
+    var result = wikisyntax("Don't like to ~~WikiIndex~~, it's silly.");
+    this.dom.innerHTML = result;
+    var strikeoutBits = this.dom.getElementsByTagName('s');
+    expect(strikeoutBits.length).toEqual(1);
+    expect('WikiIndex').toBeSubStringOf(strikeoutBits[0].innerHTML);
+  });
+
+  it("should recognise strike-out marks with WikiLinks inside", function() {
+    var result = wikisyntax("I thought the film would be ~~bleh, _bleh_~~.");
+    this.dom.innerHTML = result;
+    var strikeoutBits = this.dom.getElementsByTagName('s');
+    expect(strikeoutBits.length).toEqual(1);
+    expect(strikeoutBits[0].innerHTML).toEqual('bleh, <em>bleh</em>');
+  });
+
+  it("should leave unrecognised '~~' alone", function() {
+    var string = "I drool... :-)~~";
+    expect(string).toBeSubStringOf(wikisyntax(string));
+  });
 });
