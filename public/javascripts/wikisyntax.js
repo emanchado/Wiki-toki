@@ -20,6 +20,13 @@ reUrl.transformation = function(m) { return ["link", {href: m[0]}, m[0]]; };
 var extraSyntaxExpressions = [reWikiPages, reUrl];
 
 function _extraMarkup(tree, options) {
+    function matchSorter(a, b) {
+        var aIndex = (a[1] === null) ? Infinity : a[1].index,
+            bIndex = (b[1] === null) ? Infinity : b[1].index;
+        if (aIndex === bIndex) { return 0; }
+        return (aIndex > bIndex) ? 1 : -1;
+    }
+
   if (tree[0] === "link") {
     return tree;
   }
@@ -35,12 +42,7 @@ function _extraMarkup(tree, options) {
                             extraSyntaxExpressions[j].exec(tree[i])]);
       }
 
-      var firstMatchingPair = matchingPairs.sort(function(a, b) {
-        var aIndex = (a[1] === null) ? Infinity : a[1].index,
-            bIndex = (b[1] === null) ? Infinity : b[1].index;
-        if (aIndex === bIndex) return 0;
-        return (aIndex > bIndex) ? 1 : -1;
-      })[0];
+      var firstMatchingPair = matchingPairs.sort(matchSorter)[0];
 
       if (firstMatchingPair[1]) {
         tree.splice(i, 1,
