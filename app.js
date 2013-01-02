@@ -6,6 +6,13 @@ var configuration = {
   storeDirectory:   process.env.npm_package_config_store_directory
 };
 
+if (configuration.secretPassphrase === undefined) {
+  throw new Error('Misconfigured app, no secret passphrase');
+}
+if (configuration.storeDirectory === undefined) {
+  throw new Error('Misconfigured app, no store directory');
+}
+
 var app = module.exports = express.createServer();
 
 function pagepath(pagename) {
