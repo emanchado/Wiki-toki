@@ -1,10 +1,10 @@
 <h1><%= pagename %> <span class="options">(<a accesskey="e" id="edit-link" href="/edit/<%= pagename %>">edit</a>)</span></h1>
-<div id="rendered-text"></div>
-<form id="edit-form" style="display: none" action="/save/<%= pagename %>" method="post">
+<div id="rendered-text" class="rendered-text-disabled"></div>
+<form id="edit-form" class="edit-form-disabled" action="/save/<%= pagename %>" method="post">
   <div class="edit-helpers">
     <a href="http://daringfireball.net/projects/markdown/syntax" target="markdown">Syntax help</a>
   </div>
-  <textarea id="raw-text" name="rawText" cols="80" rows="30"><%= rawText %></textarea>
+  <textarea id="raw-text" class="raw-text-disabled" name="rawText" cols="80" rows="30"><%= rawText %></textarea>
   <div class="button-bar">
     <input accesskey="s" type="submit" value="Save" />
     <input accesskey="c" id="cancel-button" type="button" value="Cancel" />
@@ -18,20 +18,29 @@
 
     $("#edit-link").click(function() {
       $("#rendered-text").animate({ width: "50%" }, 400);
-      $("#rendered-text").css("float", "right");
-      $("#edit-form").css("display", "block");
+      $("#rendered-text").addClass("rendered-text-enabled");
+      $("#rendered-text").removeClass("rendered-text-disabled");
+      $("#edit-form").addClass("edit-form-enabled");
+      $("#edit-form").removeClass("edit-form-disabled");
       $("#raw-text").animate({ width: "45%" }, 400);
+      $("#raw-text").addClass("raw-text-enabled");
+      $("#raw-text").removeClass("raw-text-disabled");
+      $("#raw-text").focus();
       return false;
     });
 
     $("#cancel-button").click(function() {
       $("#raw-text").animate({ width: "0" }, 400);
-      $("#edit-form").css("display", "none");
+      $("#edit-form").addClass("edit-form-disabled");
+      $("#edit-form").removeClass("edit-form-enabled");
       $("#edit-form")[0].reset();
       $("#rendered-text").html(wikisyntax($("#raw-text").val(),
                                           wikiSyntaxOptions));
-      $("#rendered-text").css("float", "none");
       $("#rendered-text").animate({ width: "60%" }, 400);
+      $("#rendered-text").addClass("rendered-text-disabled");
+      $("#rendered-text").removeClass("rendered-text-enabled");
+      $("#raw-text").addClass("raw-text-disabled");
+      $("#raw-text").removeClass("raw-text-enabled");
       return false;
     });
 
