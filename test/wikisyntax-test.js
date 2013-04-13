@@ -1,18 +1,12 @@
-/*global buster,describe,before,it,expect,wikisyntax*/
-
-buster.spec.expose();
-
-buster.assertions.add("isSubStringOf", {
-    assert: function(containee, container) {
-        return container.indexOf(containee) !== -1;
-    },
-    assertMessage: "${1} should contain ${0}",
-    refuteMessage: "${1} should NOT contain ${0}",
-    expectation: "toBeSubStringOf"
-});
+/*global describe,beforeEach,it,expect,wikisyntax*/
 
 describe("Wikisyntax", function() {
-  before(function() {
+  beforeEach(function() {
+    this.addMatchers({
+      toBeSubStringOf: function(container) {
+        return container.indexOf(this.actual) !== -1;
+      }
+    });
     this.dom = window.document.createElement('div');
   });
 
