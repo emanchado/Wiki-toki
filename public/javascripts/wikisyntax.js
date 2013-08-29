@@ -14,7 +14,7 @@ reWikiPages.transformation = function(m, options) {
     }
     return m[1] ? pageName.substr(1) : ["link", anchorAttrs, pageName];
 };
-var reUrl = new RegExp("https?://[a-z0-9.-]+(/([,.]*[a-z0-9/&%_-]+)*)?", "gi");
+var reUrl = new RegExp("https?://[a-z0-9.-]+(:[0-9]+)?(/([,.]*[a-z0-9/&%_+-]+)*)?", "gi");
 reUrl.transformation = function(m) { return ["link", {href: m[0]}, m[0]]; };
 
 var extraSyntaxExpressions = [reWikiPages, reUrl];

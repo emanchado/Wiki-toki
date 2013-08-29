@@ -177,6 +177,16 @@ describe("Wikisyntax", function() {
         expect(links[2].text).toEqual(url);
     });
 
+    it("should count ':' and '+' in URLs", function() {
+        var url = "https://launchpad.net:10443/ubuntu/+ppas";
+        var result = wikisyntax("This is a trickier autolink, to " + url);
+        this.dom.innerHTML = result;
+        var links = this.dom.getElementsByTagName('a');
+        expect(links.length).toEqual(1);
+        expect(links[0].href).toEqual(url);
+        expect(links[0].text).toEqual(url);
+    });
+
     it("should mark non-existing wiki pages", function() {
         var wikiPageList = ["WikiIndex", "WikiSomething"];
         var result = wikisyntax(
