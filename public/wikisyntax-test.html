@@ -1,0 +1,28 @@
+<html>
+  <head>
+    <title>Wikisyntax test page</title>
+    <script src="javascripts/jquery-1.6.4.min.js"></script>
+    <script src="javascripts/markdown.js"></script>
+    <script src="javascripts/wikisyntax.js"></script>
+  </head>
+
+  <body>
+    <textarea name="wikisyntax" id="wikisyntax" rows="15" cols="80"></textarea>
+    <textarea name="jsonml" id="jsonml" rows="15" cols="60"></textarea>
+    <div id="rendered-text"></div>
+    <pre id="produced-markup"></pre>
+
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $("#wikisyntax").change(function() {
+      console.log($(this).text());
+          var tree = markdown.parse($(this).val(), 'WikiSyntax');
+          $("#jsonml").val(JSON.stringify(tree, null, 2));
+          var html = markdown.toHTML(_extraMarkup(tree));
+          $("#rendered-text").html(html);
+          $("#produced-markup").text(html);
+        });
+      });
+    </script>
+  </body>
+</html>
