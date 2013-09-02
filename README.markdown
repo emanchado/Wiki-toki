@@ -12,8 +12,8 @@ Node.js before, but wanted to use an actual web development
 environment instead of writing everything by hand).
 
 It's very, very simple, and it will likely stay that way as this is
-strictly a _personal_ wiki. It has a single "passphrase" to protect
-the site (no username), because it's for a single user.
+strictly a _personal_ wiki. It has a "passphrase" to protect the site
+(no username/password pair, just a passphrase).
 
 The looks are pretty spartan. Maybe one day I'll bother to use
 Bootstrap or something similar. Patches welcome.
@@ -27,5 +27,5 @@ For example, by starting the wiki like so:
 
     npm start /path/to/Wiki-toki --wiki-toki:store-directory=/var/wiki-toki/store --wiki-toki:_passphrase=ohnoyoudidn't --wiki-toki:quiet
 
-Note the --wiki-toki:quiet option, which suppresses a simple startup
+Note the `--wiki-toki:quiet` option, which suppresses a startup
 message. You might need that to run Wiki-Toki on your web server.
