@@ -118,7 +118,7 @@ describe("Wikisyntax", function() {
         expect("/view/ToWikiLink").toBeSubStringOf(links[0].href);
         expect(links[0].text).toEqual("ToWikiLink");
         var boldChunk = this.dom.getElementsByTagName('strong');
-        expect("or WikiLink).toBeSubStringOf(that", boldChunk[0].innerHTML);
+        expect("or WikiLink, that").toBeSubStringOf(boldChunk[0].innerHTML);
     });
 
     it("should linkify URLs", function() {
