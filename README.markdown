@@ -25,7 +25,11 @@ To configure it, you'll have to set the following configuration keys:
 
 For example, by starting the wiki like so:
 
-    npm start /path/to/Wiki-toki --wiki-toki:store-directory=/var/wiki-toki/store --wiki-toki:_passphrase=ohnoyoudidn't --wiki-toki:quiet
+    npm start /path/to/Wiki-toki --wiki-toki:store-directory=/var/wiki-toki/store --wiki-toki:_passphrase=ohnoyoudidnt --wiki-toki:quiet
+
+Or, if you prefer:
+
+    npm_package_config_store_directory=tmp/store npm_package_config__passphrase=ohnoyoudidnt npm_package_config_quiet=1 node app.js
 
 Note the `--wiki-toki:quiet` option, which suppresses a startup
 message. You might need that to run Wiki-Toki on your web server.
