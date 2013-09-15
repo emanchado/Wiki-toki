@@ -47,13 +47,7 @@ function authentication(req, res, next) {
 
 function getWikiPageList(cb) {
   fs.readdir(configuration.storeDirectory, function(err, files) {
-    if (err) {
-      res.render('error', {
-        message: "Couldn't read from directory " + configuration.storeDirectory
-      });
-    } else {
-      cb(files);
-    }
+    cb(err, files);
   });
 }
 
@@ -84,10 +78,17 @@ app.all('/', authentication, function(req, res){
 });
 
 app.all('/list', authentication, function(req, res){
-  getWikiPageList(function(files) {
-    res.render('index', {
-      pages: files
-    });
+  getWikiPageList(function(err, files) {
+    if (err) {
+      res.render('error', {
+        message: "Couldn't read list of wiki pages from directory " +
+              configuration.storeDirectory
+      });
+    } else {
+      res.render('index', {
+        pages: files
+      });
+    }
   });
 });
 
@@ -95,7 +96,7 @@ app.all('/view/:pagename', authentication, wikiPage, function(req, res){
   if (req.pageText === null) {
     res.redirect('/create/' + req.params.pagename);
   } else {
-    getWikiPageList(function(files) {
+    getWikiPageList(function(err, files) {
       res.render('view', {
         pagename:         req.params.pagename,
         rawText:          req.pageText,
