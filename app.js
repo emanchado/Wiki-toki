@@ -118,8 +118,9 @@ app.all('/view/:pagename', authentication, wikiPage, function(req, res){
 
 app.all('/create/:pagename', authentication, wikiPage, function(req, res){
   res.render('create', {
-    pagename: req.params.pagename,
-    rawText: (req.pageText === null) ? "" : req.pageText
+    pagename:         req.params.pagename,
+    rawText:          (req.pageText === null) ? "" : req.pageText,
+    wikiPageListJSON: JSON.stringify(req.wikiPageList)
   });
 });
 
