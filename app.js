@@ -21,13 +21,23 @@ function pagepath(pagename) {
 }
 
 function wikiPage(req, res, next) {
-  fs.readFile(pagepath(req.params.pagename), function(err, data) {
+  getWikiPageList(function(err, files) {
     if (err) {
-      req.pageText = null;
-      next();
+      res.render('error', {
+        message: "Couldn't read list of wiki pages from directory " +
+              configuration.storeDirectory
+      });
     } else {
-      req.pageText = data.toString();
-      next();
+      req.wikiPageList = files;
+      fs.readFile(pagepath(req.params.pagename), function(err, data) {
+        if (err) {
+          req.pageText = null;
+          next();
+        } else {
+          req.pageText = data.toString();
+          next();
+        }
+      });
     }
   });
 }
@@ -100,7 +110,7 @@ app.all('/view/:pagename', authentication, wikiPage, function(req, res){
       res.render('view', {
         pagename:         req.params.pagename,
         rawText:          req.pageText,
-        wikiPageListJSON: JSON.stringify(files)
+        wikiPageListJSON: JSON.stringify(req.wikiPageList)
       });
     });
   }
