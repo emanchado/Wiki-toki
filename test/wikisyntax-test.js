@@ -85,6 +85,25 @@ describe("Wikisyntax", function() {
         expect(links.length).toEqual(0);
     });
 
+    it("should allow numbers in wiki links", function() {
+        var exampleWikiLinks = ["OldDiary2013", "Old2013Diary"];
+        var result = wikisyntax("example of " + exampleWikiLinks.join(" and "));
+        this.dom.innerHTML = result;
+        var links = this.dom.getElementsByTagName('a');
+        [0,1].forEach(function(i) {
+            var wikiLink = exampleWikiLinks[i];
+            expect('/view/' + wikiLink).toBeSubStringOf(links[i].href);
+            expect(wikiLink).toEqual(links[i].text);
+        });
+    });
+
+    it("should not consider WordNNN as a wiki link", function() {
+        var result = wikisyntax("example of Diary2014");
+        this.dom.innerHTML = result;
+        var links = this.dom.getElementsByTagName('a');
+        expect(links.length).toEqual(0);
+    });
+
     it("should not linkify link URLs", function() {
         var result = wikisyntax(
             "link to [the original wiki](http://c2.com/cgi/wiki?WikiWikiWeb)"
@@ -143,20 +162,22 @@ describe("Wikisyntax", function() {
         expect(links[0].text).toEqual(url);
     });
 
-    it("should not use dots, commas or closing parens at the end of URLs when autolinking", function() {
+    it("should not use dots, commas or closing parens/question marks at the end of URLs when autolinking", function() {
         var url      = "http://example.com/";
         var result = wikisyntax(
-            "I'm linking to " + url + ", (" + url + ") and " + url + "."
+            "I'm linking to " + url + ", (" + url + "), " + url + "? and " + url + "."
         );
         this.dom.innerHTML = result;
         var links = this.dom.getElementsByTagName('a');
-        expect(links.length).toEqual(3);
+        expect(links.length).toEqual(4);
         expect(links[0].href).toEqual(url);
         expect(links[0].text).toEqual(url);
         expect(links[1].href).toEqual(url);
         expect(links[1].text).toEqual(url);
         expect(links[2].href).toEqual(url);
         expect(links[2].text).toEqual(url);
+        expect(links[3].href).toEqual(url);
+        expect(links[3].text).toEqual(url);
     });
 
     it("should support autolinks and wikilinks in any order", function() {
@@ -185,6 +206,30 @@ describe("Wikisyntax", function() {
         expect(links.length).toEqual(1);
         expect(links[0].href).toEqual(url);
         expect(links[0].text).toEqual(url);
+    });
+
+    it("should include GET in auto-linked URLs", function() {
+        var url = "http://forum.xda-developers.com/showthread.php?t=1945441&foo=bar%20qux";
+        var result = wikisyntax("This is a link with GET params: " + url);
+        this.dom.innerHTML = result;
+        var links = this.dom.getElementsByTagName('a');
+        expect(links.length).toEqual(1);
+        expect(links[0].href).toEqual(url);
+        expect(links[0].text).toEqual(url);
+    });
+
+    it("should include anchors in auto-linked URLs", function() {
+        var urls = ["http://www.pac-rom.com/#Home",
+                    "http://www.pac-rom.com/#"];
+        var result = wikisyntax("Two links with anchor: " + urls[0] + " " +
+                                urls[1]);
+        this.dom.innerHTML = result;
+        var links = this.dom.getElementsByTagName('a');
+        expect(links.length).toEqual(2);
+        [0,1].forEach(function(i) {
+            expect(links[i].href).toEqual(urls[i]);
+            expect(links[i].text).toEqual(urls[i]);
+        });
     });
 
     it("should mark non-existing wiki pages", function() {
