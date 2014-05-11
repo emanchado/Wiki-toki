@@ -141,6 +141,31 @@ app.post('/save/:pagename', authentication, function(req, res){
   }
 });
 
+app.all('/search', authentication, function(req, res) {
+  getWikiPageList(function(err, files) {
+    if (err) {
+      res.render('error', {
+        message: "Couldn't read list of wiki pages from directory " +
+              configuration.storeDirectory
+      });
+    } else {
+      var searchTerms = req.query.searchterms;
+      var searchRe = new RegExp(searchTerms, "i");
+      var results = files.filter(function(pageName) {
+        return pageName.match(searchRe);
+      });
+      if (results.length === 1) {
+        res.redirect('/view/' + results[0]);
+      } else {
+        res.render('search', {
+          searchTerms: searchTerms,
+          results: results
+        });
+      }
+    }
+  });
+});
+
 
 app.listen(process.env.PORT || 3000);
 if (! process.env.npm_package_config_quiet) {

@@ -10,7 +10,12 @@
   <body>
     <div id="topbar">
       <a accesskey="i" href="/">Index</a> |
-      <a accesskey="l" href="/list">Page list</a>
+      <a accesskey="l" href="/list">Page list</a> |
+      <form class="inline" action="/search">
+        <input accesskey="s" name="searchterms"
+               placeholder="Search..."
+               value="<% typeof(searchTerms) === "undefined" ? "" : searchTerms %>" />
+      </form>
     </div>
     <hr/>
     <div id="content">

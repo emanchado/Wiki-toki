@@ -1,0 +1,11 @@
+<h1>Search results for '<%= searchTerms %>'</h1>
+
+<ol>
+  <% if (results.length === 0) { %>
+       No results.
+  <% } else {
+       results.forEach(function(result) { %>
+         <li><a href="/view/<%= result %>" class="wikipage"><%= result %></a>
+    <% });
+     } %>
+</ol>
