@@ -20,6 +20,12 @@ function pagepath(pagename) {
     pagename.replace(/[^a-z0-9]+/gi, '');
 }
 
+function getWikiPageList(cb) {
+  fs.readdir(configuration.storeDirectory, function(err, files) {
+    cb(err, files);
+  });
+}
+
 function wikiPage(req, res, next) {
   getWikiPageList(function(err, files) {
     if (err) {
@@ -53,12 +59,6 @@ function authentication(req, res, next) {
       res.render('login', {layout: false});
     }
   }
-}
-
-function getWikiPageList(cb) {
-  fs.readdir(configuration.storeDirectory, function(err, files) {
-    cb(err, files);
-  });
 }
 
 // Configuration
@@ -106,12 +106,10 @@ app.all('/view/:pagename', authentication, wikiPage, function(req, res){
   if (req.pageText === null) {
     res.redirect('/create/' + req.params.pagename);
   } else {
-    getWikiPageList(function(err, files) {
-      res.render('view', {
-        pagename:         req.params.pagename,
-        rawText:          req.pageText,
-        wikiPageListJSON: JSON.stringify(req.wikiPageList)
-      });
+    res.render('view', {
+      pagename:         req.params.pagename,
+      rawText:          req.pageText,
+      wikiPageListJSON: JSON.stringify(req.wikiPageList)
     });
   }
 });
