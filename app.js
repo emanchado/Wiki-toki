@@ -166,6 +166,11 @@ app.all('/search', authentication, function(req, res) {
   });
 });
 
+app.all('/logout', function(req, res) {
+  req.session.authenticated = false;
+  res.redirect('/view/WikiIndex');
+});
+
 
 app.listen(process.env.PORT || 3000);
 if (! process.env.npm_package_config_quiet) {
