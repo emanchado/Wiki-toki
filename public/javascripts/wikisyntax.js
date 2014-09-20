@@ -16,7 +16,7 @@ reWikiPages.transformation = function(m, options) {
 };
 var reProtoHost = "https?://[a-z0-9.-]+(:[0-9]+)?",
     reUrlPath = "(/([,.]*[a-z0-9/&%_+-]+)*)?",
-    reGetParams = "(\\?([a-z0-9]*=[a-z0-9%]*&?)+)?",
+    reGetParams = "(\\?([a-z0-9]*=[a-z0-9%_-]*&?)+)?",
     reAnchor = "(#[a-z0-9_-]*)?",
     reUrl = new RegExp(reProtoHost + reUrlPath + reGetParams + reAnchor, "gi");
 reUrl.transformation = function(m) { return ["link", {href: m[0]}, m[0]]; };

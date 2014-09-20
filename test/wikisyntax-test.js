@@ -208,14 +208,21 @@ describe("Wikisyntax", function() {
         expect(links[0].text).toEqual(url);
     });
 
-    it("should include GET in auto-linked URLs", function() {
-        var url = "http://forum.xda-developers.com/showthread.php?t=1945441&foo=bar%20qux";
-        var result = wikisyntax("This is a link with GET params: " + url);
+    it("should include GET parameters in auto-linked URLs", function() {
+        var url1 = "http://forum.xda-developers.com/showthread.php?t=1945441&foo=bar%20qux",
+            url2 = "https://www.youtube.com/watch?v=xJdf9Y86_2s",
+            url3 = "https://www.youtube.com/watch?v=OMJ6Q-8jnzk";
+        var result = wikisyntax("These are links with GET params: " + url1 +
+                                    " " + url2 + " " + url3);
         this.dom.innerHTML = result;
         var links = this.dom.getElementsByTagName('a');
-        expect(links.length).toEqual(1);
-        expect(links[0].href).toEqual(url);
-        expect(links[0].text).toEqual(url);
+        expect(links.length).toEqual(3);
+        expect(links[0].href).toEqual(url1);
+        expect(links[0].text).toEqual(url1);
+        expect(links[1].href).toEqual(url2);
+        expect(links[1].text).toEqual(url2);
+        expect(links[2].href).toEqual(url3);
+        expect(links[2].text).toEqual(url3);
     });
 
     it("should include anchors in auto-linked URLs", function() {
