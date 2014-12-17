@@ -14,6 +14,13 @@ ul {
   padding-left: 15px;
 }
 
+/* This is because, for some reason, the Markdown parser produces two
+   <br> tags (instead of one) when leaving two spaces at the end of a
+   line. This makes it leave the correct space between lines. */
+br {
+    display: block;
+}
+
 .options {
   font-size: 60%;
 }
