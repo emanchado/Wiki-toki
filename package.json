@@ -1,19 +1,20 @@
 {
-    "name": "wiki-toki"
-  , "version": "0.0.1"
-  , "private": true
-  , "dependencies": {
-      "express": "2.4.7"
-    , "less":   ">= 0.0.1"
-    , "jade":   ">= 0.0.1"
-    , "ejs":    ">= 0.4.3"
-  }
-  , "devDependencies": {
-      "testem": ">= 0.2"
-  }
-  , "config": {
-      "store-directory":   "store"
-    , "secret-passphrase": "my secret passphrase you will never guess"
-  }
-  , "scripts": { "start": "node server.js" }
+  "name": "wiki-toki",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "2.4.7",
+    "less":   ">= 0.0.1",
+    "jade":   ">= 0.0.1",
+    "ejs":    ">= 0.4.3"
+  },
+  "devDependencies": {
+      "testem": ">= 0.2",
+      "buster": ">= 0.7.0"
+  },
+  "config": {
+    "store-directory":   "store",
+    "secret-passphrase": "my secret passphrase you will never guess"
+  },
+  "scripts": { "start": "node server.js" }
 }

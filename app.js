@@ -1,5 +1,6 @@
 var express = require('express');
 var fs = require('fs');
+var search = require("./lib/search");
 
 var configuration = {
   secretPassphrase: process.env.npm_package_config__passphrase,
@@ -150,10 +151,7 @@ app.all('/search', authentication, function(req, res) {
       });
     } else {
       var searchTerms = req.query.searchterms;
-      var searchRe = new RegExp(searchTerms, "i");
-      var results = files.filter(function(pageName) {
-        return pageName.match(searchRe);
-      });
+      var results = search(files, searchTerms);
       if (results.length === 1) {
         res.redirect('/view/' + results[0]);
       } else {
