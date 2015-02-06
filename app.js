@@ -1,6 +1,5 @@
-var express = require('express');
-var fs = require('fs');
-var search = require("./lib/search");
+var express = require('express'),
+    WikiStore = require("./lib/WikiStore");
 
 var configuration = {
     secretPassphrase: process.env.npm_package_config__passphrase,
@@ -15,29 +14,19 @@ if (configuration.storeDirectory === undefined) {
     throw new Error('Misconfigured app, no store directory');
 }
 
-var app = module.exports = express.createServer();
-
-function pagepath(pagename) {
-    return configuration.storeDirectory + '/' +
-        pagename.replace(/[^a-z0-9]+/gi, '');
-}
-
-function getWikiPageList(cb) {
-    fs.readdir(configuration.storeDirectory, function(err, files) {
-        cb(err, files);
-    });
-}
+var app = module.exports = express.createServer(),
+    wikiStore = new WikiStore(configuration);
 
 function wikiPage(req, res, next) {
-    getWikiPageList(function(err, files) {
+    wikiStore.getPageList(function(err, wikiPageTitles) {
         if (err) {
             res.render('error', {
                 message: "Couldn't read list of wiki pages from directory " +
                     configuration.storeDirectory
             });
         } else {
-            req.wikiPageList = files;
-            fs.readFile(pagepath(req.params.pagename), function(err, data) {
+            req.wikiPageList = wikiPageTitles;
+            wikiStore.readPage(req.params.pagename, function(err, data) {
                 if (err) {
                     req.pageText = null;
                     next();
@@ -90,7 +79,7 @@ app.all('/', authentication, function(req, res) {
 });
 
 app.all('/list', authentication, function(req, res) {
-    getWikiPageList(function(err, files) {
+    wikiStore.getPageList(function(err, files) {
         if (err) {
             res.render('error', {
                 message: "Couldn't read list of wiki pages from directory " +
@@ -129,30 +118,29 @@ app.post('/save/:pagename', authentication, function(req, res) {
     if (typeof(newPageContents) === 'undefined' || newPageContents === "") {
         res.redirect('/view/' + req.params.pagename);
     } else {
-        fs.writeFile(pagepath(req.params.pagename),
-                     newPageContents,
-                     function(err) {
-                         if (err) {
-                             res.render('error', {
-                                 message: "Couldn't read page " + req.params.pagename
-                             });
-                         } else {
-                             res.redirect('/view/' + req.params.pagename);
-                         }
-                     });
+        wikiStore.writePage(req.params.pagename,
+                            newPageContents,
+                            function(err) {
+                                if (err) {
+                                    res.render('error', {
+                                        message: "Couldn't read page " + req.params.pagename
+                                    });
+                                } else {
+                                    res.redirect('/view/' + req.params.pagename);
+                                }
+                            });
     }
 });
 
 app.all('/search', authentication, function(req, res) {
-    getWikiPageList(function(err, files) {
+    var searchTerms = req.query.searchterms;
+    wikiStore.searchTitles(searchTerms, function(err, results) {
         if (err) {
             res.render('error', {
                 message: "Couldn't read list of wiki pages from directory " +
                     configuration.storeDirectory
             });
         } else {
-            var searchTerms = req.query.searchterms;
-            var results = search(files, searchTerms);
             if (results.length === 1) {
                 res.redirect('/view/' + results[0]);
             } else {
