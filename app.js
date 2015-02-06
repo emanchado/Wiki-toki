@@ -3,170 +3,170 @@ var fs = require('fs');
 var search = require("./lib/search");
 
 var configuration = {
-  secretPassphrase: process.env.npm_package_config__passphrase,
-  storeDirectory:   process.env.npm_package_config_store_directory
+    secretPassphrase: process.env.npm_package_config__passphrase,
+    storeDirectory:   process.env.npm_package_config_store_directory
 };
 
 if (configuration.secretPassphrase === undefined) {
-  throw new Error('Misconfigured app, no secret passphrase');
+    throw new Error('Misconfigured app, no secret passphrase');
 }
 if (configuration.storeDirectory === undefined) {
-  throw new Error('Misconfigured app, no store directory');
+    throw new Error('Misconfigured app, no store directory');
 }
 
 var app = module.exports = express.createServer();
 
 function pagepath(pagename) {
-  return configuration.storeDirectory + '/' +
-    pagename.replace(/[^a-z0-9]+/gi, '');
+    return configuration.storeDirectory + '/' +
+        pagename.replace(/[^a-z0-9]+/gi, '');
 }
 
 function getWikiPageList(cb) {
-  fs.readdir(configuration.storeDirectory, function(err, files) {
-    cb(err, files);
-  });
+    fs.readdir(configuration.storeDirectory, function(err, files) {
+        cb(err, files);
+    });
 }
 
 function wikiPage(req, res, next) {
-  getWikiPageList(function(err, files) {
-    if (err) {
-      res.render('error', {
-        message: "Couldn't read list of wiki pages from directory " +
-              configuration.storeDirectory
-      });
-    } else {
-      req.wikiPageList = files;
-      fs.readFile(pagepath(req.params.pagename), function(err, data) {
+    getWikiPageList(function(err, files) {
         if (err) {
-          req.pageText = null;
-          next();
+            res.render('error', {
+                message: "Couldn't read list of wiki pages from directory " +
+                    configuration.storeDirectory
+            });
         } else {
-          req.pageText = data.toString();
-          next();
+            req.wikiPageList = files;
+            fs.readFile(pagepath(req.params.pagename), function(err, data) {
+                if (err) {
+                    req.pageText = null;
+                    next();
+                } else {
+                    req.pageText = data.toString();
+                    next();
+                }
+            });
         }
-      });
-    }
-  });
+    });
 }
 
 function authentication(req, res, next) {
-  if (req.session.authenticated === true) {
-    next();
-  } else {
-    if (req.body && req.body.passphrase === configuration.secretPassphrase) {
-      req.session.authenticated = true;
-      next();
+    if (req.session.authenticated === true) {
+        next();
     } else {
-      res.render('login', {layout: false});
+        if (req.body && req.body.passphrase === configuration.secretPassphrase) {
+            req.session.authenticated = true;
+            next();
+        } else {
+            res.render('login', {layout: false});
+        }
     }
-  }
 }
 
 // Configuration
-app.configure(function(){
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'ejs');
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
-  app.use(express.cookieParser());
-  app.use(express.session({ secret: 'some secret for the wikiz' }));
-  app.use(express.compiler({ src: __dirname + '/public', enable: ['less'] }));
-  app.use(app.router);
-  app.use(express.static(__dirname + '/public'));
+app.configure(function() {
+    app.set('views', __dirname + '/views');
+    app.set('view engine', 'ejs');
+    app.use(express.bodyParser());
+    app.use(express.methodOverride());
+    app.use(express.cookieParser());
+    app.use(express.session({ secret: 'some secret for the wikiz' }));
+    app.use(express.compiler({ src: __dirname + '/public', enable: ['less'] }));
+    app.use(app.router);
+    app.use(express.static(__dirname + '/public'));
 });
 
-app.configure('development', function(){
-  app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+app.configure('development', function() {
+    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 });
 
-app.configure('production', function(){
-  app.use(express.errorHandler()); 
+app.configure('production', function() {
+    app.use(express.errorHandler()); 
 });
 
 // Routes
-app.all('/', authentication, function(req, res){
-  res.redirect('/view/WikiIndex');
+app.all('/', authentication, function(req, res) {
+    res.redirect('/view/WikiIndex');
 });
 
-app.all('/list', authentication, function(req, res){
-  getWikiPageList(function(err, files) {
-    if (err) {
-      res.render('error', {
-        message: "Couldn't read list of wiki pages from directory " +
-              configuration.storeDirectory
-      });
-    } else {
-      res.render('index', {
-        pages: files
-      });
-    }
-  });
-});
-
-app.all('/view/:pagename', authentication, wikiPage, function(req, res){
-  if (req.pageText === null) {
-    res.redirect('/create/' + req.params.pagename);
-  } else {
-    res.render('view', {
-      pagename:         req.params.pagename,
-      rawText:          req.pageText,
-      wikiPageListJSON: JSON.stringify(req.wikiPageList)
+app.all('/list', authentication, function(req, res) {
+    getWikiPageList(function(err, files) {
+        if (err) {
+            res.render('error', {
+                message: "Couldn't read list of wiki pages from directory " +
+                    configuration.storeDirectory
+            });
+        } else {
+            res.render('index', {
+                pages: files
+            });
+        }
     });
-  }
 });
 
-app.all('/create/:pagename', authentication, wikiPage, function(req, res){
-  res.render('create', {
-    pagename:         req.params.pagename,
-    rawText:          (req.pageText === null) ? "" : req.pageText,
-    wikiPageListJSON: JSON.stringify(req.wikiPageList)
-  });
+app.all('/view/:pagename', authentication, wikiPage, function(req, res) {
+    if (req.pageText === null) {
+        res.redirect('/create/' + req.params.pagename);
+    } else {
+        res.render('view', {
+            pagename:         req.params.pagename,
+            rawText:          req.pageText,
+            wikiPageListJSON: JSON.stringify(req.wikiPageList)
+        });
+    }
 });
 
-app.post('/save/:pagename', authentication, function(req, res){
-  var newPageContents = req.body.rawText;
-  if (typeof(newPageContents) === 'undefined' || newPageContents === "") {
-    res.redirect('/view/' + req.params.pagename);
-  } else {
-    fs.writeFile(pagepath(req.params.pagename),
-                 newPageContents,
-                 function(err) {
-                   if (err) {
-                     res.render('error', {
-                       message: "Couldn't read page " + req.params.pagename
+app.all('/create/:pagename', authentication, wikiPage, function(req, res) {
+    res.render('create', {
+        pagename:         req.params.pagename,
+        rawText:          (req.pageText === null) ? "" : req.pageText,
+        wikiPageListJSON: JSON.stringify(req.wikiPageList)
+    });
+});
+
+app.post('/save/:pagename', authentication, function(req, res) {
+    var newPageContents = req.body.rawText;
+    if (typeof(newPageContents) === 'undefined' || newPageContents === "") {
+        res.redirect('/view/' + req.params.pagename);
+    } else {
+        fs.writeFile(pagepath(req.params.pagename),
+                     newPageContents,
+                     function(err) {
+                         if (err) {
+                             res.render('error', {
+                                 message: "Couldn't read page " + req.params.pagename
+                             });
+                         } else {
+                             res.redirect('/view/' + req.params.pagename);
+                         }
                      });
-                   } else {
-                     res.redirect('/view/' + req.params.pagename);
-                   }
-                 });
-  }
+    }
 });
 
 app.all('/search', authentication, function(req, res) {
-  getWikiPageList(function(err, files) {
-    if (err) {
-      res.render('error', {
-        message: "Couldn't read list of wiki pages from directory " +
-              configuration.storeDirectory
-      });
-    } else {
-      var searchTerms = req.query.searchterms;
-      var results = search(files, searchTerms);
-      if (results.length === 1) {
-        res.redirect('/view/' + results[0]);
-      } else {
-        res.render('search', {
-          searchTerms: searchTerms,
-          results: results
-        });
-      }
-    }
-  });
+    getWikiPageList(function(err, files) {
+        if (err) {
+            res.render('error', {
+                message: "Couldn't read list of wiki pages from directory " +
+                    configuration.storeDirectory
+            });
+        } else {
+            var searchTerms = req.query.searchterms;
+            var results = search(files, searchTerms);
+            if (results.length === 1) {
+                res.redirect('/view/' + results[0]);
+            } else {
+                res.render('search', {
+                    searchTerms: searchTerms,
+                    results: results
+                });
+            }
+        }
+    });
 });
 
 app.all('/logout', function(req, res) {
-  req.session.authenticated = false;
-  res.redirect('/view/WikiIndex');
+    req.session.authenticated = false;
+    res.redirect('/view/WikiIndex');
 });
 
 
