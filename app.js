@@ -4,7 +4,8 @@ var search = require("./lib/search");
 
 var configuration = {
     secretPassphrase: process.env.npm_package_config__passphrase,
-    storeDirectory:   process.env.npm_package_config_store_directory
+    storeDirectory:   process.env.npm_package_config_store_directory,
+    sessionSecret:   process.env.npm_package_config_session_secret
 };
 
 if (configuration.secretPassphrase === undefined) {
@@ -69,7 +70,7 @@ app.configure(function() {
     app.use(express.bodyParser());
     app.use(express.methodOverride());
     app.use(express.cookieParser());
-    app.use(express.session({ secret: 'some secret for the wikiz' }));
+    app.use(express.session({ secret: configuration.sessionSecret || 'some secret for the wikiz' }));
     app.use(express.compiler({ src: __dirname + '/public', enable: ['less'] }));
     app.use(app.router);
     app.use(express.static(__dirname + '/public'));
