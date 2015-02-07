@@ -14,7 +14,7 @@
       <form class="inline" action="/search">
         <input accesskey="s" name="searchterms"
                placeholder="Search..."
-               value="<% typeof(searchTerms) === "undefined" ? "" : searchTerms %>" />
+               value="<%= typeof(searchTerms) === "undefined" ? "" : searchTerms %>" />
       </form>
 
       <a style="float: right" href="/logout">Logout</a>
