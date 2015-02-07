@@ -85,7 +85,38 @@ describe("Page save", function() {
     });
 });
 
-describe("Search", function() {
+describe("Page info", function() {
+    it("should return an error on non-existing store", function(done) {
+        var store = new WikiStore({
+            storeDirectory: "test/buster/stores/non-existent"
+        });
+
+        store.getPageInfo(function(err) {
+            expect(err).not.toEqual(null);
+            done();
+        });
+    });
+
+    it("should return relevant info on an existing store", function(done) {
+        var store = new WikiStore({
+            storeDirectory: "test/buster/stores/trivial"
+        });
+
+        store.getPageInfo(function(err, pageInfoArray) {
+            var sortedPageInfoArray = pageInfoArray.sort(function(a, b) {
+                return a.title.localeCompare(b.title);
+            });
+
+            expect(sortedPageInfoArray[0].title).toEqual("SomethingElse");
+            expect(sortedPageInfoArray[0].contents).toEqual("Some other content\n");
+            expect(sortedPageInfoArray[1].title).toEqual("WikiIndex");
+            expect(sortedPageInfoArray[1].contents).toEqual("Index page\n");
+            done();
+        });
+    });
+});
+
+describe("Title search", function() {
     it("should return no results on empty search term", function(done) {
         var store = new WikiStore({
             storeDirectory: "test/buster/stores/trivial"
@@ -122,6 +153,70 @@ describe("Search", function() {
         });
         store.searchTitles("w i", function(err, results) {
             expect(results).toEqual(["WikiIndex"]);
+            done();
+        });
+    });
+});
+
+describe("Content search", function() {
+    it("should return no results on empty search term", function(done) {
+        var store = new WikiStore({
+            storeDirectory: "test/buster/stores/content-search"
+        });
+        store.searchContents("", function(err, results) {
+            expect(results).toEqual([]);
+            done();
+        });
+    });
+
+    it("should find single result on a simple, one-term search", function(done) {
+        var store = new WikiStore({
+            storeDirectory: "test/buster/stores/content-search"
+        });
+        store.searchContents("front", function(err, results) {
+            expect(results).toEqual(["WikiIndex"]);
+            done();
+        });
+    });
+
+    it("should find single results regarless of casing", function(done) {
+        var store = new WikiStore({
+            storeDirectory: "test/buster/stores/content-search"
+        });
+        store.searchContents("FRoNt", function(err, results) {
+            expect(results).toEqual(["WikiIndex"]);
+            done();
+        });
+    });
+
+    it("should only find full words", function(done) {
+        var store = new WikiStore({
+            storeDirectory: "test/buster/stores/content-search"
+        });
+        store.searchContents("fro", function(err, results) {
+            expect(results).toEqual([]);
+            done();
+        });
+    });
+
+    it("should not allow the user to sabotage the regular expression", function(done) {
+        var store = new WikiStore({
+            storeDirectory: "test/buster/stores/content-search"
+        });
+        store.searchContents("front\\", function(err, results) {
+            expect(err).toEqual(null);
+            expect(results).toEqual(["WikiIndex"]);
+            done();
+        });
+    });
+
+    it("should allow the user to use regular expressions", function(done) {
+        var store = new WikiStore({
+            storeDirectory: "test/buster/stores/content-search"
+        });
+        store.searchContents("front.*", function(err, results) {
+            expect(err).toEqual(null);
+            expect(results.sort()).toEqual(["ProgrammingLanguages", "WikiIndex"]);
             done();
         });
     });

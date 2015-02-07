@@ -134,23 +134,44 @@ app.post('/save/:pagename', authentication, function(req, res) {
 
 app.all('/search', authentication, function(req, res) {
     var searchTerms = req.query.searchterms;
-    wikiStore.searchTitles(searchTerms, function(err, results) {
-        if (err) {
-            res.render('error', {
-                message: "Couldn't read list of wiki pages from directory " +
-                    configuration.storeDirectory
-            });
-        } else {
-            if (results.length === 1) {
-                res.redirect('/view/' + results[0]);
-            } else {
-                res.render('search', {
-                    searchTerms: searchTerms,
-                    results: results
+
+    if (searchTerms.length && searchTerms[0] === '/') {
+        wikiStore.searchContents(searchTerms.substr(1), function(err, results) {
+            if (err) {
+                res.render('error', {
+                    message: "Couldn't read list of wiki pages from directory " +
+                        configuration.storeDirectory + " because: " + err
                 });
+            } else {
+                if (results.length === 1) {
+                    res.redirect('/view/' + results[0]);
+                } else {
+                    res.render('search', {
+                        searchTerms: searchTerms,
+                        results: results
+                    });
+                }
             }
-        }
-    });
+        });
+    } else {
+        wikiStore.searchTitles(searchTerms, function(err, results) {
+            if (err) {
+                res.render('error', {
+                    message: "Couldn't read list of wiki pages from directory " +
+                        configuration.storeDirectory
+                });
+            } else {
+                if (results.length === 1) {
+                    res.redirect('/view/' + results[0]);
+                } else {
+                    res.render('search', {
+                        searchTerms: searchTerms,
+                        results: results
+                    });
+                }
+            }
+        });
+    }
 });
 
 app.all('/logout', function(req, res) {
