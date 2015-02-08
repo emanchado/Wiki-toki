@@ -1,5 +1,6 @@
 var express = require('express'),
-    WikiStore = require("./lib/WikiStore");
+    WikiStore = require("./lib/WikiStore"),
+    middlewares = require("./lib/middlewares");
 
 var configuration = {
     secretPassphrase: process.env.npm_package_config__passphrase,
@@ -15,42 +16,9 @@ if (configuration.storeDirectory === undefined) {
 }
 
 var app = module.exports = express.createServer(),
-    wikiStore = new WikiStore(configuration);
-
-function wikiPage(req, res, next) {
-    wikiStore.getPageList(function(err, wikiPageTitles) {
-        if (err) {
-            res.render('error', {
-                message: "Couldn't read list of wiki pages from directory " +
-                    configuration.storeDirectory
-            });
-        } else {
-            req.wikiPageList = wikiPageTitles;
-            wikiStore.readPage(req.params.pagename, function(err, data) {
-                if (err) {
-                    req.pageText = null;
-                    next();
-                } else {
-                    req.pageText = data.toString();
-                    next();
-                }
-            });
-        }
-    });
-}
-
-function authentication(req, res, next) {
-    if (req.session.authenticated === true) {
-        next();
-    } else {
-        if (req.body && req.body.passphrase === configuration.secretPassphrase) {
-            req.session.authenticated = true;
-            next();
-        } else {
-            res.render('login', {layout: false});
-        }
-    }
-}
+    wikiStore = new WikiStore(configuration),
+    wikiPageMiddleware = middlewares.getWikiPageMiddleware(wikiStore),
+    authMiddleware = middlewares.getAuthenticationMiddleware(configuration);
 
 // Configuration
 app.configure(function() {
@@ -74,11 +42,11 @@ app.configure('production', function() {
 });
 
 // Routes
-app.all('/', authentication, function(req, res) {
+app.all('/', authMiddleware, function(req, res) {
     res.redirect('/view/WikiIndex');
 });
 
-app.all('/list', authentication, function(req, res) {
+app.all('/list', authMiddleware, function(req, res) {
     wikiStore.getPageList(function(err, files) {
         if (err) {
             res.render('error', {
@@ -93,7 +61,7 @@ app.all('/list', authentication, function(req, res) {
     });
 });
 
-app.all('/view/:pagename', authentication, wikiPage, function(req, res) {
+app.all('/view/:pagename', authMiddleware, wikiPageMiddleware, function(req, res) {
     if (req.pageText === null) {
         res.redirect('/create/' + req.params.pagename);
     } else {
@@ -105,7 +73,7 @@ app.all('/view/:pagename', authentication, wikiPage, function(req, res) {
     }
 });
 
-app.all('/create/:pagename', authentication, wikiPage, function(req, res) {
+app.all('/create/:pagename', authMiddleware, wikiPageMiddleware, function(req, res) {
     res.render('create', {
         pagename:         req.params.pagename,
         rawText:          (req.pageText === null) ? "" : req.pageText,
@@ -113,7 +81,7 @@ app.all('/create/:pagename', authentication, wikiPage, function(req, res) {
     });
 });
 
-app.post('/save/:pagename', authentication, function(req, res) {
+app.post('/save/:pagename', authMiddleware, function(req, res) {
     var newPageContents = req.body.rawText;
     if (typeof(newPageContents) === 'undefined' || newPageContents === "") {
         res.redirect('/view/' + req.params.pagename);
@@ -132,7 +100,7 @@ app.post('/save/:pagename', authentication, function(req, res) {
     }
 });
 
-app.all('/search', authentication, function(req, res) {
+app.all('/search', authMiddleware, function(req, res) {
     var searchTerms = req.query.searchterms;
 
     if (searchTerms.length && searchTerms[0] === '/') {
