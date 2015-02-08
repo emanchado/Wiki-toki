@@ -2,3 +2,4 @@ public/stylesheets/style.css
 store
 node_modules
 test/buster/stores/save
+npm-debug.log
