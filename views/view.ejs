@@ -1,4 +1,4 @@
-<h1><%= pageName %> <span class="options">(<a accesskey="e" id="edit-link" href="/edit/<%= pageName %>">edit</a> | <a id="rename-link" href="/rename/<%= pageName %>">rename</a>)</span></h1>
+<h1><%= pageName %> <span class="options">(<a accesskey="e" id="edit-link" href="/edit/<%= pageName %>">edit</a><% if (pageName !== "WikiIndex") { %> | <a id="rename-link" href="/rename/<%= pageName %>">rename</a><% } %>)</span></h1>
 <div id="rendered-text" class="rendered-text-disabled"></div>
 <form id="edit-form" class="edit-form-disabled" action="/save/<%= pageName %>" method="post">
   <div class="edit-helpers">
