@@ -62,23 +62,25 @@ app.all('/list', authMiddleware, function(req, res) {
 });
 
 app.all('/view/:pageName', authMiddleware, wikiPageMiddleware, function(req, res) {
-    if (req.pageText === null) {
-        res.redirect('/create/' + req.params.pageName);
-    } else {
-        res.render('view', {
-            pageName:         req.params.pageName,
-            rawText:          req.pageText,
-            wikiPageListJSON: JSON.stringify(req.wikiPageList)
-        });
-    }
+    wikiStore.pageExists(req.params.pageName, function(exists) {
+        if (exists) {
+            res.render('create', {
+                pageName:         req.params.pageName,
+                rawText:          (req.pageText === null) ? "" : req.pageText,
+                wikiPageListJSON: JSON.stringify(req.wikiPageList)
+            });
+        } else {
+            res.render('view', {
+                pageName:         req.params.pageName,
+                rawText:          req.pageText,
+                wikiPageListJSON: JSON.stringify(req.wikiPageList)
+            });
+        }
+    });
 });
 
 app.all('/create/:pageName', authMiddleware, wikiPageMiddleware, function(req, res) {
-    res.render('create', {
-        pageName:         req.params.pageName,
-        rawText:          (req.pageText === null) ? "" : req.pageText,
-        wikiPageListJSON: JSON.stringify(req.wikiPageList)
-    });
+    res.redirect('/view/' + req.params.pageName);
 });
 
 app.post('/save/:pageName', authMiddleware, function(req, res) {
