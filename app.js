@@ -17,7 +17,6 @@ if (configuration.storeDirectory === undefined) {
 
 var app = module.exports = express.createServer(),
     wikiStore = new WikiStore(configuration),
-    wikiPageMiddleware = middlewares.getWikiPageMiddleware(wikiStore),
     authMiddleware = middlewares.getAuthenticationMiddleware(configuration);
 
 // Configuration
@@ -61,25 +60,30 @@ app.all('/list', authMiddleware, function(req, res) {
     });
 });
 
-app.all('/view/:pageName', authMiddleware, wikiPageMiddleware, function(req, res) {
-    wikiStore.pageExists(req.params.pageName, function(exists) {
-        if (exists) {
-            res.render('create', {
-                pageName:         req.params.pageName,
-                rawText:          (req.pageText === null) ? "" : req.pageText,
-                wikiPageListJSON: JSON.stringify(req.wikiPageList)
-            });
+app.all('/view/:pageName', authMiddleware, function(req, res) {
+    wikiStore.getPageList(function(err, wikiPageTitles) {
+        if (err) {
+            res.render('error', {message: err});
         } else {
-            res.render('view', {
-                pageName:         req.params.pageName,
-                rawText:          req.pageText,
-                wikiPageListJSON: JSON.stringify(req.wikiPageList)
+            wikiStore.readPage(req.params.pageName, function(err, data) {
+                if (err) {
+                    res.render('create', {
+                        pageName:         req.params.pageName,
+                        wikiPageListJSON: JSON.stringify(wikiPageTitles)
+                    });
+                } else {
+                    res.render('view', {
+                        pageName:         req.params.pageName,
+                        rawText:          data.toString(),
+                        wikiPageListJSON: JSON.stringify(wikiPageTitles)
+                    });
+                }
             });
         }
     });
 });
 
-app.all('/create/:pageName', authMiddleware, wikiPageMiddleware, function(req, res) {
+app.all('/create/:pageName', authMiddleware, function(req, res) {
     res.redirect('/view/' + req.params.pageName);
 });
 
