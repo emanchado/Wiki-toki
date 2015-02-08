@@ -102,6 +102,58 @@ app.post('/save/:pageName', authMiddleware, function(req, res) {
     }
 });
 
+function doRename(store, oldPageName, newPageName, res) {
+    wikiStore.searchContents(oldPageName, function(err, results) {
+        if (err) {
+            res.render('error', {
+                message: "Couldn't read list of wiki pages from directory " +
+                    configuration.storeDirectory + " because: " + err
+            });
+        } else {
+            if (newPageName) {
+                wikiStore.renamePage(
+                    oldPageName,
+                    newPageName,
+                    function(err) {
+                        if (err) {
+                            res.render('rename', {
+                                pageName: oldPageName,
+                                linkingPages: results,
+                                error: err
+                            });
+                        } else if (results.length) {
+                            res.render('after-rename', {
+                                pageName: newPageName,
+                                oldPageName: oldPageName,
+                                linkingPages: results
+                            });
+                        } else {
+                            res.redirect('/view/' + newPageName);
+                        }
+                    });
+            } else {
+                res.render('rename', {
+                    pageName: oldPageName,
+                    linkingPages: results
+                });
+            }
+        }
+    });
+}
+
+app.all('/rename/:pageName', authMiddleware, function(req, res) {
+    var oldPageName = req.params.pageName,
+        newPageName = req.body.newPageName;
+
+    wikiStore.pageExists(oldPageName, function(exists) {
+        if (exists) {
+            doRename(wikiStore, oldPageName, newPageName, res);
+        } else {
+            res.redirect('/view/' + oldPageName);
+        }
+    });
+});
+
 app.all('/search', authMiddleware, function(req, res) {
     var searchTerms = req.query.searchterms;
 

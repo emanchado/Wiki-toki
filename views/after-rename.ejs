@@ -1,0 +1,15 @@
+<h1>'<%= pageName %>' renamed</h1>
+
+You might want to edit these pages, as they link to the old name (<%= oldPageName %>):
+
+<ol>
+  <% if (linkingPages.length === 0) { %>
+       No pages.
+  <% } else {
+       linkingPages.forEach(function(result) { %>
+         <li><a href="/view/<%= result %>" class="wikipage"><%= result %></a>
+    <% });
+     } %>
+</ol>
+
+Proceed to the new <a href="/view/<%= pageName %>"><%= pageName %></a>.

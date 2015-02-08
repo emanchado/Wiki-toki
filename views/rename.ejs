@@ -1,0 +1,24 @@
+<h1>Rename '<%= pageName %>'</h1>
+
+<% if (typeof error !== 'undefined') { %>
+   <p class="error"><%= error %></p>
+<% } %>
+
+<form method="POST" action="/rename/<%= pageName %>">
+      <label for="newPageName">New page name:</label><br/>
+      <input id="newPageName" name="newPageName" value="<%= pageName %>" />
+</form>
+
+<p class="page-references-note"><em>For reference, pages linking to the current name:</em></p>
+
+<ol class="page-references-list">
+  <% if (linkingPages.length === 0) { %>
+       No pages.
+  <% } else {
+       linkingPages.forEach(function(result) { %>
+         <li><a href="/view/<%= result %>" class="wikipage"><%= result %></a>
+    <% });
+     } %>
+</ol>
+
+Back to <a href="/view/<%= pageName %>"><%= pageName %></a>.
