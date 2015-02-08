@@ -28,8 +28,8 @@ describe("Retrieval", function() {
     });
 
     it("should retrieve existing pages", function(done) {
-        this.store.readPage("WikiIndex", function(err, data) {
-            expect(data.toString()).toEqual("This is the index\n");
+        this.store.readPage("WikiIndex", function(err, text) {
+            expect(text).toEqual("This is the index\n");
             done();
         });
     });
@@ -61,8 +61,8 @@ describe("Page save", function() {
         var pageContents = "New page\n";
 
         store.writePage("WikiIndex", pageContents, function() {
-            store.readPage("WikiIndex", function(err, data) {
-                expect(data.toString()).toEqual(pageContents);
+            store.readPage("WikiIndex", function(err, text) {
+                expect(text).toEqual(pageContents);
                 done();
             });
         });
@@ -77,8 +77,8 @@ describe("Page save", function() {
 
         store.writePage("WikiIndex", contents1, function() {
             store.writePage("WikiIndex", contents2, function() {
-                store.readPage("WikiIndex", function(err, data) {
-                    expect(data.toString()).toEqual(contents2);
+                store.readPage("WikiIndex", function(err, text) {
+                    expect(text).toEqual(contents2);
                     done();
                 });
             });
@@ -295,9 +295,9 @@ describe("Rename page", function() {
                 expect(res).toEqual(false);
                 self.store.pageExists(targetName, function(res) {
                     expect(res).toEqual(true);
-                    self.store.readPage(targetName, function(err, contents) {
+                    self.store.readPage(targetName, function(err, text) {
                         expect(err).toEqual(null);
-                        expect(contents.toString()).toEqual("I don't have that letter!\n");
+                        expect(text).toEqual("I don't have that letter!\n");
                         done();
                     });
                 });
