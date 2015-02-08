@@ -61,40 +61,40 @@ app.all('/list', authMiddleware, function(req, res) {
     });
 });
 
-app.all('/view/:pagename', authMiddleware, wikiPageMiddleware, function(req, res) {
+app.all('/view/:pageName', authMiddleware, wikiPageMiddleware, function(req, res) {
     if (req.pageText === null) {
-        res.redirect('/create/' + req.params.pagename);
+        res.redirect('/create/' + req.params.pageName);
     } else {
         res.render('view', {
-            pagename:         req.params.pagename,
+            pageName:         req.params.pageName,
             rawText:          req.pageText,
             wikiPageListJSON: JSON.stringify(req.wikiPageList)
         });
     }
 });
 
-app.all('/create/:pagename', authMiddleware, wikiPageMiddleware, function(req, res) {
+app.all('/create/:pageName', authMiddleware, wikiPageMiddleware, function(req, res) {
     res.render('create', {
-        pagename:         req.params.pagename,
+        pageName:         req.params.pageName,
         rawText:          (req.pageText === null) ? "" : req.pageText,
         wikiPageListJSON: JSON.stringify(req.wikiPageList)
     });
 });
 
-app.post('/save/:pagename', authMiddleware, function(req, res) {
+app.post('/save/:pageName', authMiddleware, function(req, res) {
     var newPageContents = req.body.rawText;
     if (typeof(newPageContents) === 'undefined' || newPageContents === "") {
-        res.redirect('/view/' + req.params.pagename);
+        res.redirect('/view/' + req.params.pageName);
     } else {
-        wikiStore.writePage(req.params.pagename,
+        wikiStore.writePage(req.params.pageName,
                             newPageContents,
                             function(err) {
                                 if (err) {
                                     res.render('error', {
-                                        message: "Couldn't read page " + req.params.pagename
+                                        message: "Couldn't read page " + req.params.pageName
                                     });
                                 } else {
-                                    res.redirect('/view/' + req.params.pagename);
+                                    res.redirect('/view/' + req.params.pageName);
                                 }
                             });
     }
