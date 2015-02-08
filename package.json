@@ -10,8 +10,9 @@
     "q":       ">= 1.0.0"
   },
   "devDependencies": {
-      "testem": ">= 0.2",
-      "buster": ">= 0.7.0"
+    "testem": ">= 0.2",
+    "buster": ">= 0.7.0",
+    "fs-extra": ">= 0.16.0"
   },
   "config": {
     "store-directory":   "store",

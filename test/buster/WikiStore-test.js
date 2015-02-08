@@ -1,15 +1,16 @@
-/*global describe, it, before */
+/*global describe, it, beforeEach, afterEach */
 
 var buster = require("buster"),
     fs = require("fs"),
-    path = require("path");
+    path = require("path"),
+    fsExtra = require("fs-extra");
 var WikiStore = require("../../lib/WikiStore.js");
 
 buster.spec.expose();
 var expect = buster.expect;
 
 describe("Retrieval", function() {
-    before(function() {
+    beforeEach(function() {
         this.store = new WikiStore({
             storeDirectory: "test/buster/stores/simple"
         });
@@ -37,7 +38,7 @@ describe("Retrieval", function() {
 describe("Page save", function() {
     var storeDir = "test/buster/stores/save";
 
-    before(function(done) {
+    beforeEach(function(done) {
         try {
             fs.mkdirSync(storeDir);
         } catch (e) {
@@ -218,6 +219,89 @@ describe("Content search", function() {
             expect(err).toEqual(null);
             expect(results.sort()).toEqual(["ProgrammingLanguages", "WikiIndex"]);
             done();
+        });
+    });
+});
+
+describe("Rename page", function() {
+    var origDir = "test/buster/stores/simple",
+        targetDir = "test/buster/stores/rename",
+        self = this;
+
+    beforeEach(function(done) {
+        fsExtra.copy(origDir, targetDir, function(err) {
+            if (err) {
+                throw new Error("Could not prepare store: " + err);
+            }
+
+            self.store = new WikiStore({
+                storeDirectory: "test/buster/stores/rename"
+            });
+
+            done();
+        });
+    });
+
+    afterEach(function(done) {
+        fsExtra.remove(targetDir, function(err) {
+            if (err) {
+                throw new Error("Could not delete store: " + err);
+            }
+            done();
+        });
+    });
+
+    it("should fail if the target page already exists", function(done) {
+        var self = this,
+            origName = "IdontHaveDoubleU",
+            targetName = "OswaldoPetterson";
+
+        self.store.renamePage(origName, targetName, function(err) {
+            expect(err).not.toEqual(null);
+            self.store.pageExists(origName, function(res) {
+                expect(res).toEqual(true);
+                done();
+            });
+        });
+    });
+
+    it("should fail to rename WikiIndex", function(done) {
+        this.store.renamePage("WikiIndex", "WhateverElse", function(err) {
+            expect(err).not.toEqual(null);
+            done();
+        });
+    });
+
+    it("should fail if the original page doesn't exist", function(done) {
+        var self = this;
+        self.store.renamePage("BlahBlah", "BlehBleh", function(err) {
+            expect(err).not.toEqual(null);
+
+            self.store.pageExists("BlehBleh", function(res) {
+                expect(res).toEqual(false);
+                done();
+            });
+        });
+    });
+
+    it("should rename pages if the new name doesn't exist", function(done) {
+        var self = this,
+            origName = "IdontHaveDoubleU",
+            targetName = "IdontHaveW";
+
+        self.store.renamePage(origName, targetName, function(err) {
+            expect(err).toEqual(null);
+            self.store.pageExists(origName, function(res) {
+                expect(res).toEqual(false);
+                self.store.pageExists(targetName, function(res) {
+                    expect(res).toEqual(true);
+                    self.store.readPage(targetName, function(err, contents) {
+                        expect(err).toEqual(null);
+                        expect(contents.toString()).toEqual("I don't have that letter!\n");
+                        done();
+                    });
+                });
+            });
         });
     });
 });
