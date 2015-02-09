@@ -87,6 +87,29 @@ app.all('/create/:pageName', authMiddleware, function(req, res) {
     res.redirect('/view/' + req.params.pageName);
 });
 
+app.all('/edit/:pageName', authMiddleware, function(req, res) {
+    wikiStore.getPageList(function(err, wikiPageTitles) {
+        if (err) {
+            res.render('error', {message: err});
+        } else {
+            wikiStore.readPage(req.params.pageName, function(err, data) {
+                if (err) {
+                    res.render('create', {
+                        pageName:         req.params.pageName,
+                        wikiPageListJSON: JSON.stringify(wikiPageTitles)
+                    });
+                } else {
+                    res.render('edit', {
+                        pageName:         req.params.pageName,
+                        rawText:          data.toString(),
+                        wikiPageListJSON: JSON.stringify(wikiPageTitles)
+                    });
+                }
+            });
+        }
+    });
+});
+
 app.post('/save/:pageName', authMiddleware, function(req, res) {
     var newPageContents = req.body.rawText;
     if (typeof(newPageContents) === 'undefined' || newPageContents === "") {

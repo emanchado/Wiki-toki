@@ -50,8 +50,7 @@
         target.data('event-state', 'buffered');
         setTimeout(function() {
           target.data('event-state', '');
-          target.html(wikisyntax($("#raw-text").val(),
-                                 wikiSyntaxOptions));
+          target.html(wikisyntax($("#raw-text").val(), wikiSyntaxOptions));
         }, 1000);
       }
     });
