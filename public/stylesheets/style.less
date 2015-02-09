@@ -1,3 +1,60 @@
+@media all {
+  #topbar {
+    margin: 0;
+    padding: 0;
+    font-size: 90%;
+
+    padding-bottom: 5px;
+    border-bottom: 2px solid black;
+  }
+
+  .options {
+    font-size: 60%;
+  }
+
+  #rendered-text a.wikipage.non-existent {
+    color: #f33;
+  }
+
+  #rendered-text a {
+    padding-right: 10px;
+    background-image: url("/images/external-link.gif");
+    background-repeat: no-repeat;
+    background-position: right;
+  }
+
+  #rendered-text a.wikipage {
+    padding-right: inherit;
+    background: inherit;
+  }
+}
+
+@media print {
+  #topbar {
+    display: none;
+  }
+
+  .options {
+    display: none;
+  }
+
+  #rendered-text a {
+    text-decoration: none;
+    padding-right: 0px;
+    background-image: none;
+  }
+
+  #rendered-text a:after {
+    content: " " attr(href);
+    color: #888;
+    font-style: italic;
+  }
+
+  #rendered-text a.wikipage[href]:after {
+    content: "";
+  }
+}
+
 body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
@@ -21,17 +78,9 @@ br {
     display: block;
 }
 
-.options {
-  font-size: 60%;
-}
-
 .edit-helpers {
   font-size: 80%;
   margin-bottom: 5px;
-}
-
-#rendered-text a.wikipage.non-existent {
-  color: #f33;
 }
 
 .error {
@@ -42,27 +91,9 @@ br {
   width: 60%;
 }
 
-#rendered-text a {
-  padding-right: 10px;
-  background-image: url("/images/external-link.gif");
-  background-repeat: no-repeat;
-  background-position: right;
-}
-
-#rendered-text a.wikipage {
-  padding-right: inherit;
-  background: inherit;
-}
-
 .rendered-text-enabled {
   float: right;
   width: 45%;
-}
-
-#topbar {
-  margin: 0;
-  padding: 0;
-  font-size: 90%;
 }
 
 #content {
