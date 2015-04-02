@@ -16,6 +16,27 @@
     color: #f33;
   }
 
+  #rendered-text a.wikipedia-link {
+    padding-right: 20px;
+    background-image: url("/images/wikipedia-globe.png");
+    background-repeat: no-repeat;
+    background-position: right;
+  }
+
+  #rendered-text a.picture-link {
+    padding-right: 20px;
+    background-image: url("/images/picture.png");
+    background-repeat: no-repeat;
+    background-position: right;
+  }
+
+  #rendered-text a.pdf-link {
+    padding-right: 20px;
+    background-image: url("/images/pdf.png");
+    background-repeat: no-repeat;
+    background-position: right;
+  }
+
   #rendered-text a {
     padding-right: 10px;
     background-image: url("/images/external-link.gif");
@@ -38,7 +59,7 @@
     display: none;
   }
 
-  #rendered-text a {
+  #rendered-text a, #rendered-text a.picture-link, #rendered-text a.pdf-link, #rendered-text a.wikipedia-link {
     text-decoration: none;
     padding-right: 0px;
     background-image: none;

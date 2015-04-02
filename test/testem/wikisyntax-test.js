@@ -285,4 +285,43 @@ describe("Wikisyntax", function() {
         var string = "I drool... :-)~~";
         expect(string).toBeSubStringOf(wikisyntax(string));
     });
+
+    it("should mark wikipedia links", function() {
+        var result = wikisyntax("[Foo](http://wikipedia.org/wiki/Foo)");
+        this.dom.innerHTML = result;
+        var link = this.dom.getElementsByTagName('a');
+        expect(link[0].className).toEqual('wikipedia-link');
+    });
+
+    it("should mark PDF links", function() {
+        var result = wikisyntax(
+            "[PDF](http://example.com/foo.pdf) " +
+                "[PDF with params](http://example.com/foo.pdf?full=yes) " +
+                "[PDF mention](http://example.com/download.php?file=foo.pdf)"
+        );
+        this.dom.innerHTML = result;
+        var links = this.dom.getElementsByTagName('a');
+        expect(links[0].className).toEqual('pdf-link');
+        expect(links[1].className).toEqual('pdf-link');
+        expect(links[2].className).not.toEqual('pdf-link');
+    });
+
+    it("should mark picture links", function() {
+        var result = wikisyntax(
+            "[jpg](http://example.com/foo.jpg) " +
+                "[JPG](http://example.com/foo.JPG) " +
+                "[Jpeg](http://example.com/foo.Jpeg) " +
+                "[Gif](http://example.com/foo.Gif) " +
+                "[png](http://example.com/foo.png) " +
+                "[JPG mention](http://example.com/download.php?file=foo.jpg)"
+        );
+        this.dom.innerHTML = result;
+        var links = this.dom.getElementsByTagName('a');
+        expect(links[0].className).toEqual('picture-link');
+        expect(links[1].className).toEqual('picture-link');
+        expect(links[2].className).toEqual('picture-link');
+        expect(links[3].className).toEqual('picture-link');
+        expect(links[4].className).toEqual('picture-link');
+        expect(links[5].className).not.toEqual('picture-link');
+    });
 });

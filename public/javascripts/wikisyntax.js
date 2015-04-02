@@ -23,6 +23,22 @@ reUrl.transformation = function(m) { return ["link", {href: m[0]}, m[0]]; };
 
 var extraSyntaxExpressions = [reWikiPages, reUrl];
 
+function prettifyLinks(tree) {
+    var url = tree[1].href,
+        urlWithoutQueryParams = url.replace(/\?.*/, "");
+
+    if (new RegExp('\\.(jpe?g|gif|png)$', 'i').test(urlWithoutQueryParams)) {
+        tree[1].class = 'picture-link';
+    }
+    if (new RegExp('\\.pdf$', 'i').test(urlWithoutQueryParams)) {
+        tree[1].class = 'pdf-link';
+    }
+    if (new RegExp('wikipedia\\.org', 'i').test(urlWithoutQueryParams)) {
+        tree[1].class = 'wikipedia-link';
+    }
+    return tree;
+}
+
 function _extraMarkup(tree, options) {
     function matchSorter(a, b) {
         var aIndex = (a[1] === null) ? Infinity : a[1].index,
@@ -32,7 +48,7 @@ function _extraMarkup(tree, options) {
     }
 
     if (tree[0] === "link") {
-        return tree;
+        return prettifyLinks(tree);
     }
 
     for (var i = 1, len = tree.length; i < len; i++) {
