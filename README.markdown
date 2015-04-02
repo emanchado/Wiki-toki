@@ -44,3 +44,9 @@ Or simply by setting them in `~/.npmrc`.
 
 Note the `--wiki-toki:quiet` option, which suppresses a startup
 message. You might need that to run Wiki-Toki on your web server.
+
+Icons
+=====
+
+The picture and PDF link icons are made by Jozef Krajčovič, and taken
+from https://www.iconfinder.com/iconsets/document-icons-2.
