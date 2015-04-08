@@ -1,21 +1,53 @@
-@media all {
+body {
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+h1 {
+  margin-top: 0;
+}
+
+#topbar {
+  margin: 0;
+  padding: 0;
+  font-size: 90%;
+
+  padding-bottom: 5px;
+  border-bottom: 2px solid black;
+}
+
+a {
+  color: #00B7FF;
+}
+
+#rendered-text a.wikipage.non-existent {
+  color: #f33;
+}
+
+@media print {
+  /* Don't show links and navigation in print */
   #topbar {
-    margin: 0;
-    padding: 0;
-    font-size: 90%;
-
-    padding-bottom: 5px;
-    border-bottom: 2px solid black;
+    display: none;
   }
-
   .options {
-    font-size: 60%;
+    display: none;
   }
 
-  #rendered-text a.wikipage.non-existent {
-    color: #f33;
+  /* Show URLs (without decoration) after links on print... */
+  #rendered-text a {
+    text-decoration: none;
   }
+  #rendered-text a:after {
+    content: " " attr(href);
+    color: #888;
+    font-style: italic;
+  }
+  /* ...except for WikiLinks */
+  #rendered-text a.wikipage[href]:after {
+    content: "";
+  }
+}
 
+@media screen, projection {
   #rendered-text a.wikipedia-link {
     padding-right: 20px;
     background-image: url("/images/wikipedia-globe.png");
@@ -50,44 +82,6 @@
   }
 }
 
-@media print {
-  #topbar {
-    display: none;
-  }
-
-  .options {
-    display: none;
-  }
-
-  #rendered-text a, #rendered-text a.picture-link, #rendered-text a.pdf-link, #rendered-text a.wikipedia-link {
-    text-decoration: none;
-    padding-right: 0px;
-    background-image: none;
-  }
-
-  #rendered-text a:after {
-    content: " " attr(href);
-    color: #888;
-    font-style: italic;
-  }
-
-  #rendered-text a.wikipage[href]:after {
-    content: "";
-  }
-}
-
-body {
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-}
-
-h1 {
-  margin-top: 0;
-}
-
-a {
-  color: #00B7FF;
-}
-
 ul {
   padding-left: 15px;
 }
@@ -97,6 +91,10 @@ ul {
    line. This makes it leave the correct space between lines. */
 br {
     display: block;
+}
+
+.options {
+  font-size: 60%;
 }
 
 .edit-helpers {
