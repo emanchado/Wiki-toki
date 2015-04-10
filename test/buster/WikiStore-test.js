@@ -4,7 +4,8 @@ var buster = require("buster"),
     fs = require("fs"),
     path = require("path"),
     fsExtra = require("fs-extra");
-var WikiStore = require("../../lib/WikiStore.js");
+var WikiStore = require("../../lib/WikiStore.js"),
+    storeUpgrader = require("../../lib/storeUpgrader");
 
 buster.spec.expose();
 var expect = buster.expect;
@@ -38,20 +39,10 @@ describe("Retrieval", function() {
 describe("Page save", function() {
     var storeDir = "test/buster/stores/save";
 
-    beforeEach(function(done) {
-        try {
-            fs.mkdirSync(storeDir);
-        } catch (e) {
-            // If the directory was already there, remove any files
-            fs.readdir(storeDir, function(err, files) {
-                files.forEach(function(filePath) {
-                    if (filePath[0] !== ".") {
-                        fs.unlinkSync(path.join(storeDir, filePath));
-                    }
-                });
-                done();
-            });
-        }
+    beforeEach(function() {
+        fsExtra.removeSync(storeDir);
+        fs.mkdirSync(storeDir);
+        storeUpgrader.upgrade(storeDir);
     });
 
     it("should create pages", function(done) {

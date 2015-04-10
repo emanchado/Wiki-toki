@@ -1,6 +1,7 @@
 var express = require('express'),
     WikiStore = require("./lib/WikiStore"),
-    middlewares = require("./lib/middlewares");
+    middlewares = require("./lib/middlewares"),
+    storeUpgrader = require("./lib/storeUpgrader");
 
 var configuration = {
     secretPassphrase: process.env.npm_package_config__passphrase,
@@ -14,6 +15,8 @@ if (configuration.secretPassphrase === undefined) {
 if (configuration.storeDirectory === undefined) {
     throw new Error('Misconfigured app, no store directory');
 }
+
+storeUpgrader.upgrade(configuration.storeDirectory);
 
 var app = module.exports = express.createServer(),
     wikiStore = new WikiStore(configuration),
