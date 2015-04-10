@@ -1,9 +1,22 @@
-body {
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+@font-face {
+  font-family: "Ubuntu Light";
+  src: local("Ubuntu Light"), url("/fonts/Ubuntu-Light.ttf");
 }
 
-h1 {
+@font-face {
+  font-family: "Ubuntu Medium";
+  src: local("Ubuntu Medium"), url("/fonts/Ubuntu-Medium.ttf");
+}
+
+body {
+  font: 14px "Ubuntu Light", "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+div.page-name {
+  font-family: "Ubuntu Medium", "Lucida Grande", Helvetica, Arial, sans-serif;
   margin-top: 0;
+  font-size: 24pt;
+  font-weight: bold;
 }
 
 #topbar {
