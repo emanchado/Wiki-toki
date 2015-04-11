@@ -228,7 +228,7 @@ describe("Rename page", function() {
             }
 
             self.store = new WikiStore({
-                storeDirectory: "test/buster/stores/rename"
+                storeDirectory: targetDir
             });
 
             done();
@@ -292,6 +292,167 @@ describe("Rename page", function() {
                         expect(err).toEqual(null);
                         expect(text).toEqual("I don't have that letter!\n");
                         done();
+                    });
+                });
+            });
+        });
+    });
+});
+
+describe("Share page", function() {
+    var origDir = "test/buster/stores/simple",
+        targetDir = "test/buster/stores/sharing",
+        self = this;
+
+    beforeEach(function(done) {
+        fsExtra.copy(origDir, targetDir, function(err) {
+            if (err) {
+                throw new Error("Could not prepare store: " + err);
+            }
+
+            self.store = new WikiStore({
+                storeDirectory: targetDir
+            });
+
+            done();
+        });
+    });
+
+    afterEach(function(done) {
+        fsExtra.remove(targetDir, function(err) {
+            if (err) {
+                throw new Error("Could not delete store: " + err);
+            }
+            done();
+        });
+    });
+
+    it("should be able to mark a page as shared", function(done) {
+        var self = this,
+            pageName = "IdontHaveDoubleU";
+
+        self.store.sharePage(pageName, function(err, uuid) {
+            expect(err).toEqual(null);
+            expect(uuid.length).toEqual(36);
+            self.store.pageShareId(pageName, function(err, actualUuid) {
+                expect(err).toEqual(null);
+                expect(actualUuid).toEqual(uuid);
+                done();
+            });
+        });
+    });
+
+    it("should reuse the same share id when sharing an already shared page", function(done) {
+        var self = this,
+            pageName = "IdontHaveDoubleU",
+            initialShareId;
+
+        self.store.sharePage(pageName, function(err, shareId) {
+            expect(err).toEqual(null);
+            initialShareId = shareId;
+            self.store.sharePage(pageName, function(err, shareId) {
+                expect(err).toEqual(null);
+                expect(shareId).toEqual(initialShareId);
+                done();
+            });
+        });
+    });
+
+    it("should be able to check if a page is shared", function(done) {
+        var self = this,
+            pageName = "IdontHaveDoubleU";
+
+        self.store.isPageShared(pageName, function(isSharedInitially) {
+            expect(isSharedInitially).toEqual(false);
+
+            self.store.sharePage(pageName, function(err/*, uuid*/) {
+                expect(err).toEqual(null);
+                self.store.isPageShared(pageName, function(isSharedNow) {
+                    expect(isSharedNow).toEqual(true);
+                    done();
+                });
+            });
+        });
+    });
+
+    it("should be able to remove a page share", function(done) {
+        var self = this,
+            pageName = "IdontHaveDoubleU";
+
+        self.store.isPageShared(pageName, function(isSharedInitially) {
+            expect(isSharedInitially).toEqual(false);
+
+            self.store.sharePage(pageName, function(err/*, uuid*/) {
+                expect(err).toEqual(null);
+                self.store.unsharePage(pageName, function(err) {
+                    expect(err).toEqual(null);
+                    self.store.isPageShared(pageName, function(isSharedNow) {
+                        expect(isSharedNow).toEqual(false);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    it("should return error when unsharing if the page is not shared", function(done) {
+        var self = this,
+            pageName = "IdontHaveDoubleU";
+
+        self.store.isPageShared(pageName, function(isSharedInitially) {
+            expect(isSharedInitially).toEqual(false);
+
+            self.store.unsharePage(pageName, function(err) {
+                expect(err).not.toEqual(null);
+                done();
+            });
+        });
+    });
+
+    it("should assign a different share id every time a page is shared", function(done) {
+        var self = this,
+            pageName = "IdontHaveDoubleU",
+            firstShareId,
+            newShareId;
+
+        self.store.sharePage(pageName, function(err, shareId) {
+            expect(err).toEqual(null);
+            firstShareId = shareId;
+            self.store.unsharePage(pageName, function(err) {
+                expect(err).toEqual(null);
+                self.store.sharePage(pageName, function(err, shareId) {
+                    expect(err).toEqual(null);
+                    expect(shareId).not.toEqual(firstShareId);
+                    newShareId = shareId;
+                    self.store.pageShareId(pageName, function(err, lastShareId) {
+                        expect(lastShareId).toEqual(newShareId);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    it("should give a list of shared pages", function(done) {
+        var self = this,
+            pageName = "IdontHaveDoubleU",
+            shareId;
+
+        self.store.getSharedPages(function(err, sharedPageList) {
+            expect(err).toEqual(null);
+            expect(Object.keys(sharedPageList).length).toEqual(0);
+
+            self.store.sharePage(pageName, function(err, id) {
+                shareId = id;
+                self.store.getSharedPages(function(err, sharedPageList) {
+                    expect(err).toEqual(null);
+                    expect(sharedPageList[pageName]).toEqual(shareId);
+
+                    self.store.unsharePage(pageName, function(/*err*/) {
+                        self.store.getSharedPages(function(err, sharedPageList) {
+                            expect(Object.keys(sharedPageList).length).toEqual(0);
+                            done();
+                        });
                     });
                 });
             });
