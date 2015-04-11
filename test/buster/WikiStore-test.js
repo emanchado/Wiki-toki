@@ -42,6 +42,8 @@ describe("Page save", function() {
     beforeEach(function() {
         fsExtra.removeSync(storeDir);
         fs.mkdirSync(storeDir);
+        fs.writeFileSync(path.join(storeDir, "WikiIndex"),
+                         "Index intentionally (almost) blank.");
         storeUpgrader.upgrade(storeDir);
     });
 
