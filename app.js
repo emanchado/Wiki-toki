@@ -1,4 +1,11 @@
 var express = require('express'),
+    bodyParser     = require('body-parser'),
+    cookieParser = require("cookie-parser"),
+    expressSession = require("express-session"),
+    expressLess = require("express-less"),
+    expressLayout = require("express-layout"),
+    errorhandler = require("errorhandler"),
+
     WikiStore = require("./lib/WikiStore"),
     middlewares = require("./lib/middlewares"),
     storeUpgrader = require("./lib/storeUpgrader");
@@ -18,30 +25,31 @@ if (configuration.storeDirectory === undefined) {
 
 storeUpgrader.upgrade(configuration.storeDirectory);
 
-var app = module.exports = express.createServer(),
+var app = module.exports = express(),
     wikiStore = new WikiStore(configuration),
     authMiddleware = middlewares.getAuthenticationMiddleware(configuration);
 
 // Configuration
-app.configure(function() {
-    app.set('views', __dirname + '/views');
-    app.set('view engine', 'ejs');
-    app.use(express.bodyParser());
-    app.use(express.methodOverride());
-    app.use(express.cookieParser());
-    app.use(express.session({ secret: configuration.sessionSecret || 'some secret for the wikiz' }));
-    app.use(express.compiler({ src: __dirname + '/public', enable: ['less'] }));
-    app.use(app.router);
-    app.use(express.static(__dirname + '/public'));
-});
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(expressSession({
+    resave: false,
+    saveUninitialized: false,
+    secret: configuration.sessionSecret || 'some secret for the wikiz'
+}));
+app.use(express.static(__dirname + '/public'));
+app.use('/stylesheets/', expressLess(__dirname, '/public'));
+app.use(expressLayout());
 
-app.configure('development', function() {
-    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-});
-
-app.configure('production', function() {
+var env = process.env.NODE_ENV || 'development';
+if (env === 'development') {
+    app.use(errorhandler({ dumpExceptions: true, showStack: true }));
+}
+if (env === 'production') {
     app.use(express.errorHandler()); 
-});
+}
 
 // Routes
 app.all('/', authMiddleware, function(req, res) {
@@ -296,9 +304,10 @@ app.all('/logout', function(req, res) {
 });
 
 
-app.listen(process.env.PORT || 3000);
+var port = parseInt(process.env.PORT || "3000", 10);
+app.listen(port);
 if (! process.env.npm_package_config_quiet) {
     console.log("Express server listening on port %d in %s mode",
-                app.address().port,
+                port,
                 app.settings.env);
 }

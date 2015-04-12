@@ -3,10 +3,16 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "express": "2.4.7",
-    "less":    ">= 0.0.1",
-    "jade":    ">= 0.0.1",
-    "ejs":     ">= 0.4.3",
+    "express": "^4.12.0",
+    "body-parser": "^1.0.0",
+    "cookie-parser": "^1.0.0",
+    "express-session": "^1.0.0",
+    "express-less": "^0.0.6",
+    "errorhandler": "^1.3.0",
+    "express-layout": "^0.1.0",
+
+    "less":    "^2.5.0",
+    "ejs":     "^2.3.0",
     "q":       ">= 1.0.0",
     "glob":    "^5.0.0"
   },
