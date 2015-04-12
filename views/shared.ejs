@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= typeof(pageName) === "undefined" ? "" : pageName + " - " %>Wiki-toki</title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <script src="/javascripts/jquery-1.6.4.min.js"></script>
+    <script src="/javascripts/markdown.js"></script>
+    <script src="/javascripts/wikisyntax.js"></script>
+  </head>
+  <body>
+    <div id="content">
+      <div class="page-name"><%= pageName %></div>
+      <div id="rendered-text" class="rendered-text-disabled"></div>
+      <input id="raw-text" type="hidden" value="<%= rawText %>" />
+      <script>
+        $(document).ready(function() {
+          var wikiSyntaxOptions = {wikiPageList: <%- wikiPageListJSON %>};
+          $("#rendered-text").html(wikisyntax($("#raw-text").val(),
+                                   wikiSyntaxOptions));
+        });
+      </script>
+    </div>
+  </body>
+</html>

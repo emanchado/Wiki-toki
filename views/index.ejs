@@ -1,6 +1,6 @@
 <h1>Page list</h1>
 <ul>
   <% pages.forEach(function(p) { %>
-    <li><a href="/view/<%= p %>"><%= p %></a></li>
+    <li><a href="/view/<%= p %>"><%= p %></a><% if (shared[p]) { %> (<a href="/shared/<%= shared[p] %>">shared</a> | <a href="/unshare/<%= p %>">unshare</a>)<% } %></li>
   <% }); %>
 </ul>

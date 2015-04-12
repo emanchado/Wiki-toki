@@ -56,29 +56,37 @@ app.all('/list', authMiddleware, function(req, res) {
                     configuration.storeDirectory
             });
         } else {
-            res.render('index', {
-                pages: files
+            wikiStore.getSharedPages(function(err, sharedPages) {
+                res.render('index', {
+                    pages: files,
+                    shared: sharedPages
+                });
             });
         }
     });
 });
 
 app.all('/view/:pageName', authMiddleware, function(req, res) {
+    var pageName = req.params.pageName;
+
     wikiStore.getPageList(function(err, wikiPageTitles) {
         if (err) {
             res.render('error', {message: err});
         } else {
-            wikiStore.readPage(req.params.pageName, function(err, data) {
+            wikiStore.readPage(pageName, function(err, data) {
                 if (err) {
                     res.render('create', {
-                        pageName:         req.params.pageName,
+                        pageName:         pageName,
                         wikiPageListJSON: JSON.stringify(wikiPageTitles)
                     });
                 } else {
-                    res.render('view', {
-                        pageName:         req.params.pageName,
-                        rawText:          data.toString(),
-                        wikiPageListJSON: JSON.stringify(wikiPageTitles)
+                    wikiStore.isPageShared(pageName, function(isShared) {
+                        res.render('view', {
+                            pageName:         pageName,
+                            rawText:          data.toString(),
+                            wikiPageListJSON: JSON.stringify(wikiPageTitles),
+                            isShared:         isShared
+                        });
                     });
                 }
             });
@@ -224,6 +232,62 @@ app.all('/search', authMiddleware, function(req, res) {
             }
         });
     }
+});
+
+app.all('/share/:pageName', authMiddleware, function(req, res) {
+    var pageName = req.params.pageName;
+
+    wikiStore.sharePage(pageName, function(err, shareId) {
+        if (err) {
+            res.render('error', {
+                message: "Couldn't share page '" + pageName + "'"
+            });
+        } else {
+            res.redirect('/shared/' + shareId);
+        }
+    });
+});
+
+app.all('/unshare/:pageName', authMiddleware, function(req, res) {
+    var pageName = req.params.pageName;
+
+    wikiStore.unsharePage(pageName, function(err) {
+        if (err) {
+            res.render('error', {
+                message: "Couldn't unshare page '" + pageName + "'"
+            });
+        } else {
+            res.redirect('/view/' + pageName);
+        }
+    });
+});
+
+// NOTE: This is not authenticated, that's the whole point of it!
+app.all('/shared/:shareId', function(req, res) {
+    var shareId = req.params.shareId;
+
+    wikiStore.pageNameForShareId(shareId, function(err, pageName) {
+        if (err) {
+            res.render('error', {
+                message: "Couldn't find share id '" + shareId + "'"
+            });
+        } else {
+            wikiStore.getPageList(function(err, wikiPageTitles) {
+                if (err) {
+                    res.render('error', {message: err});
+                } else {
+                    wikiStore.readPage(pageName, function(err, data) {
+                        res.render('shared', {
+                            layout: false,
+                            pageName:         pageName,
+                            rawText:          data.toString(),
+                            wikiPageListJSON: JSON.stringify(wikiPageTitles)
+                        });
+                    });
+                }
+            });
+        }
+    });
 });
 
 app.all('/logout', function(req, res) {
