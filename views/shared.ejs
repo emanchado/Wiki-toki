@@ -14,7 +14,8 @@
       <input id="raw-text" type="hidden" value="<%= rawText %>" />
       <script>
         $(document).ready(function() {
-          var wikiSyntaxOptions = {wikiPageList: <%- wikiPageListJSON %>};
+          var wikiSyntaxOptions = {wikiPageList: <%- wikiPageListJSON %>,
+                                   sharedPage: true};
           $("#rendered-text").html(wikisyntax($("#raw-text").val(),
                                    wikiSyntaxOptions));
         });

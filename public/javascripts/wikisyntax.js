@@ -3,16 +3,18 @@ if (typeof(exports) !== 'undefined') {
 }
 
 // Regular expressions for wiki-specific syntax on top of Markdown
-var reWikiPages = new RegExp("(!)?\\b[A-Z][a-z0-9]+([A-Z][a-z0-9]*)+\\b", "g");
+var reWikiPages = new RegExp("(!)?\\b([A-Z][a-z0-9]+([A-Z][a-z0-9]*)+)\\b", "g");
 reWikiPages.transformation = function(m, options) {
-    var pageName = m[0];
+    var pageName = m[2];
     var anchorAttrs = {href:    "/view/" + pageName,
                        'class': "wikipage"};
     if (options && options.wikiPageList &&
         options.wikiPageList.indexOf(pageName) === -1) {
         anchorAttrs['class'] = anchorAttrs['class'] + " non-existent";
     }
-    return m[1] ? pageName.substr(1) : ["link", anchorAttrs, pageName];
+    return (m[1] || options.sharedPage) ?
+        pageName :
+        ["link", anchorAttrs, pageName];
 };
 var reProtoHost = "https?://[a-z0-9.-]+(:[0-9]+)?",
     reUrlPath = "(/([,.]*[a-z0-9/&%_+-]+)*)?",
