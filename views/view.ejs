@@ -10,11 +10,14 @@
     <input accesskey="c" id="cancel-button" type="button" value="Cancel" />
   </div>
 </form>
+<script src="/javascripts/md-liveupdater.js"></script>
 <script>
   $(document).ready(function() {
     var wikiSyntaxOptions = {wikiPageList: <%- wikiPageListJSON %>};
-    $("#rendered-text").html(wikisyntax($("#raw-text").val(),
-                             wikiSyntaxOptions));
+
+    markdownLiveUpdater($("#raw-text"),
+                        $("#rendered-text"),
+                        wikiSyntaxOptions);
 
     $("#edit-link").click(function() {
       $("#rendered-text").animate({ width: "50%" }, 400);
@@ -42,17 +45,6 @@
       $("#raw-text").addClass("raw-text-disabled");
       $("#raw-text").removeClass("raw-text-enabled");
       return false;
-    });
-
-    $("#raw-text").bind('input', function() {
-      var target = $("#rendered-text");
-      if (target.data('event-state') !== 'buffered') {
-        target.data('event-state', 'buffered');
-        setTimeout(function() {
-          target.data('event-state', '');
-          target.html(wikisyntax($("#raw-text").val(), wikiSyntaxOptions));
-        }, 500);
-      }
     });
   });
 </script>

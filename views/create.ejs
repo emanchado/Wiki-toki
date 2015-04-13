@@ -2,28 +2,20 @@
 <div id="rendered-text" class="rendered-text-enabled"></div>
 <form id="edit-form" class="edit-form-enabled" action="/save/<%= pageName %>" method="post">
   <div class="syntax"><a href="http://daringfireball.net/projects/markdown/syntax" target="markdown">Markdown syntax</a></div>
-  <textarea id="raw-text" class="raw-text-enabled" name="rawText" cols="80" rows="30"></textarea>
+  <textarea id="raw-text" class="raw-text-enabled" name="rawText" cols="80" rows="30" autofocus="autofocus"></textarea>
   <div class="button-bar">
     <input accesskey="s" type="submit" value="Save" />
     <input accesskey="c" id="cancel-button" type="button" value="Cancel" />
   </div>
 </form>
+<script src="/javascripts/md-liveupdater.js"></script>
 <script>
   $(document).ready(function() {
     var wikiSyntaxOptions = {wikiPageList: <%- wikiPageListJSON %>};
-    $("#raw-text").focus();
 
-    $("#raw-text").bind('input', function() {
-      var target = $("#rendered-text");
-      if (target.data('event-state') !== 'buffered') {
-        target.data('event-state', 'buffered');
-        setTimeout(function() {
-          target.data('event-state', '');
-          target.html(wikisyntax($("#raw-text").val(),
-                                 wikiSyntaxOptions));
-        }, 500);
-      }
-    });
+    markdownLiveUpdater($("#raw-text"),
+                        $("#rendered-text"),
+                        wikiSyntaxOptions);
 
     $("#cancel-button").click(function() {
       window.location.href = '/';
