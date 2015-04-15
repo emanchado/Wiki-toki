@@ -16,8 +16,13 @@ body {
 div.page-name {
   font-family: "Ubuntu Medium", "Lucida Grande", Helvetica, Arial, sans-serif;
   margin-top: 1ex;
+  margin-bottom: 1ex;
   font-size: 24pt;
   font-weight: bold;
+}
+
+div.page-name-view {
+  text-align: center;
 }
 
 #topbar {
@@ -31,6 +36,11 @@ div.page-name {
 
 a {
   color: #00B7FF;
+  text-decoration: none;
+}
+
+#rendered-text a {
+  text-decoration: underline;
 }
 
 #rendered-text a.wikipage.non-existent {
@@ -112,6 +122,7 @@ br {
 }
 
 .edit-helpers {
+  float: left;
   font-size: 80%;
   margin-bottom: 5px;
 }
@@ -122,11 +133,12 @@ br {
 
 .rendered-text-disabled {
   width: 60%;
+  margin-left: 20%;
 }
 
 .rendered-text-enabled {
   float: right;
-  width: 45%;
+  width: 50%;
 }
 
 #content {
@@ -139,10 +151,34 @@ br {
 
 .edit-form-enabled {
   display: block;
+  width: 45%;
 }
 
 .raw-text-enabled {
-  width: 50%;
+  width: 100%;
+}
+
+div.button-bar {
+  float: right;
+  margin-top: 0.5ex;
+  margin-right: 0;
+  border-right: 0;
+}
+
+input[type=button], input[type=submit] {
+  border: none;
+  padding: 0.3ex 1em;
+  margin-bottom: 2ex;
+}
+
+input.default-button, button.default-button {
+  color: #eee;
+  background-color: #0081cc;
+  border: 1px solid #0081cc;
+}
+
+#cancel-button {
+  border: 1px solid #888;
 }
 
 form.inline {

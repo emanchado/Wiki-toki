@@ -1,13 +1,13 @@
-<div class="page-name"><%= pageName %> <span class="options">(<a accesskey="e" id="edit-link" href="/edit/<%= pageName %>">edit</a><% if (pageName !== "WikiIndex") { %> | <a id="rename-link" href="/share/<%= pageName %>" target="shared-<%= pageName %>"><% if (isShared) { %>shared<% } else { %>share<% } %></a> | <a id="rename-link" href="/rename/<%= pageName %>">rename</a><% } %>)</span></div>
+<div class="page-name page-name-view"><%= pageName %> <span class="options">(<a accesskey="e" id="edit-link" href="/edit/<%= pageName %>">edit</a><% if (pageName !== "WikiIndex") { %> | <a id="rename-link" href="/share/<%= pageName %>" target="shared-<%= pageName %>"><% if (isShared) { %>shared<% } else { %>share<% } %></a> | <a id="rename-link" href="/rename/<%= pageName %>">rename</a><% } %>)</span></div>
 <div id="rendered-text" class="rendered-text-disabled"></div>
 <form id="edit-form" class="edit-form-disabled" action="/save/<%= pageName %>" method="post">
-  <div class="edit-helpers">
-    <a href="http://daringfireball.net/projects/markdown/syntax" target="markdown">Syntax help</a>
-  </div>
   <textarea id="raw-text" class="raw-text-disabled" name="rawText" cols="80" rows="30"><%= rawText %></textarea>
   <div class="button-bar">
-    <input accesskey="s" type="submit" value="Save" />
+    <input accesskey="s" id="save-button" class="default-button" type="submit" value="Save" />
     <input accesskey="c" id="cancel-button" type="button" value="Cancel" />
+  </div>
+  <div class="edit-helpers">
+    <a href="http://daringfireball.net/projects/markdown/syntax" target="markdown">Syntax help</a>
   </div>
 </form>
 <script src="/javascripts/md-liveupdater.js"></script>
@@ -20,12 +20,12 @@
                         wikiSyntaxOptions);
 
     $("#edit-link").click(function() {
-      $("#rendered-text").animate({ width: "50%" }, 400);
+      $("#rendered-text").animate({ width: "50%" }, 300);
       $("#rendered-text").addClass("rendered-text-enabled");
       $("#rendered-text").removeClass("rendered-text-disabled");
       $("#edit-form").addClass("edit-form-enabled");
       $("#edit-form").removeClass("edit-form-disabled");
-      $("#raw-text").animate({ width: "45%" }, 400);
+      $("#edit-form").animate({ width: "45%" }, 300);
       $("#raw-text").addClass("raw-text-enabled");
       $("#raw-text").removeClass("raw-text-disabled");
       $("#raw-text").focus();
@@ -33,13 +33,13 @@
     });
 
     $("#cancel-button").click(function() {
-      $("#raw-text").animate({ width: "0" }, 400);
+      $("#edit-form").animate({ width: "0" }, 300);
       $("#edit-form").addClass("edit-form-disabled");
       $("#edit-form").removeClass("edit-form-enabled");
       $("#edit-form")[0].reset();
       $("#rendered-text").html(wikisyntax($("#raw-text").val(),
                                           wikiSyntaxOptions));
-      $("#rendered-text").animate({ width: "60%" }, 400);
+      $("#rendered-text").animate({ width: "60%" }, 300);
       $("#rendered-text").addClass("rendered-text-disabled");
       $("#rendered-text").removeClass("rendered-text-enabled");
       $("#raw-text").addClass("raw-text-disabled");
