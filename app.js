@@ -40,7 +40,7 @@ app.use(expressSession({
     secret: configuration.sessionSecret || 'some secret for the wikiz'
 }));
 app.use(express.static(__dirname + '/public'));
-app.use('/stylesheets/', expressLess(__dirname, '/public'));
+app.use('/stylesheets/', expressLess(__dirname + '/public/stylesheets'));
 app.use(expressLayout());
 
 var env = process.env.NODE_ENV || 'development';
