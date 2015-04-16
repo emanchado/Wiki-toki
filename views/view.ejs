@@ -20,6 +20,7 @@
                         wikiSyntaxOptions);
 
     $("#edit-link").click(function() {
+      $(".options").hide();
       $("#rendered-text").animate({ width: "50%" }, 300);
       $("#rendered-text").addClass("rendered-text-enabled");
       $("#rendered-text").removeClass("rendered-text-disabled");
@@ -33,6 +34,7 @@
     });
 
     $("#cancel-button").click(function() {
+      $(".options").show();
       $("#edit-form").animate({ width: "0" }, 300);
       $("#edit-form").addClass("edit-form-disabled");
       $("#edit-form").removeClass("edit-form-enabled");
