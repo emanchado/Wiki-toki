@@ -1,4 +1,4 @@
-<div class="page-name"><%= pageName %> <span class="options">(<a accesskey="e" id="edit-link" href="/edit/<%= pageName %>">edit</a><% if (pageName !== "WikiIndex") { %> | <a id="rename-link" href="/share/<%= pageName %>" target="shared-<%= pageName %>"><% if (isShared) { %>shared<% } else { %>share<% } %></a> | <a id="rename-link" href="/rename/<%= pageName %>">rename</a><% } %>)</span></div>
+<div class="page-name"><%= pageName %> <span class="options">(<a accesskey="e" id="edit-link" href="/edit/<%= pageName %>">edit</a><% if (pageName !== "WikiIndex") { %> | <a id="rename-link" href="/share/<%= pageName %>"><% if (isShared) { %>shared<% } else { %>share<% } %></a> | <a id="rename-link" href="/rename/<%= pageName %>">rename</a><% } %>)</span></div>
 <div id="rendered-text" class="rendered-text-disabled"></div>
 <form id="edit-form" class="edit-form-disabled" action="/save/<%= pageName %>" method="post">
   <textarea id="raw-text" class="raw-text-disabled" name="rawText" cols="80" rows="30"><%= rawText %></textarea>
