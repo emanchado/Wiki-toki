@@ -12,8 +12,8 @@
       <a accesskey="i" href="/">Index</a> |
       <a accesskey="l" href="/list">Page list</a> |
       <form class="inline" action="/search">
-        <img src="/images/search.png" />
-        <input accesskey="s" name="searchterms"
+        <label for="search-box"><img src="/images/search.png" /></label>
+        <input id="search-box" accesskey="s" name="searchterms"
                placeholder="Search..."
                value="<%= typeof(searchTerms) === "undefined" ? "" : searchTerms %>" />
       </form>
