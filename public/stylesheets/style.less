@@ -8,18 +8,22 @@
   src: local("Ubuntu Medium"), url("/fonts/Ubuntu-Medium.ttf");
 }
 
-body {
+body, input {
   font: 14px "Ubuntu Light", "Lucida Grande", Helvetica, Arial, sans-serif;
   line-height: 160%;
 }
 
-div.page-name {
-  font-family: "Ubuntu Medium", "Lucida Grande", Helvetica, Arial, sans-serif;
+.page-name-container {
   margin-top: 1ex;
   margin-bottom: 1ex;
+  text-align: center;
+}
+
+.page-name {
+  font-family: "Ubuntu Medium", "Lucida Grande", Helvetica, Arial, sans-serif;
   font-size: 24pt;
   font-weight: bold;
-  text-align: center;
+  vertical-align: top;
 }
 
 #topbar {
@@ -103,7 +107,7 @@ a {
   }
 }
 
-ul {
+#rendered-text ul {
   padding-left: 15px;
 }
 
@@ -112,10 +116,6 @@ ul {
    line. This makes it leave the correct space between lines. */
 br {
     display: block;
-}
-
-.options {
-  font-size: 60%;
 }
 
 .edit-helpers {
@@ -168,13 +168,13 @@ input[type=button], input[type=submit] {
   margin-bottom: 2ex;
 }
 
-input.default-button, button.default-button {
+.default-button {
   color: #eee;
   background-color: #0081cc;
   border: 1px solid #0081cc;
 }
 
-#cancel-button {
+.button, input.button {
   border: 1px solid #888;
 }
 
@@ -192,22 +192,84 @@ form.inline {
 }
 
 @media (min-width: 600px) {
-    ul.compact {
-        -webkit-columns: 2;
-        -moz-columns: 2;
-    }
+  ul.compact {
+    -webkit-columns: 2;
+    -moz-columns: 2;
+  }
 }
 
 @media (min-width: 900px) {
-    ul.compact {
-        -webkit-columns: 3;
-        -moz-columns: 3;
-    }
+  ul.compact {
+    -webkit-columns: 3;
+    -moz-columns: 3;
+  }
 }
 
 @media (min-width: 1200px) {
-    ul.compact {
-        -webkit-columns: 4;
-        -moz-columns: 4;
-    }
+  ul.compact {
+    -webkit-columns: 4;
+    -moz-columns: 4;
+  }
+}
+
+@options-border-thickness: 1px;
+
+div.options {
+  display: inline-block;
+  position: relative;
+  vertical-align: middle;
+
+  border: @options-border-thickness solid #888;
+  background-color: #ededed;
+  margin-left: 1em;
+}
+
+div.options a {
+  color: black;
+}
+
+@menu-vertical-padding: 0.3ex;
+
+.menu-option {
+  display: inline-block;
+  padding: @menu-vertical-padding 1em;
+}
+
+.dropdown-toggle-button {
+  position: relative;
+  display: inline-block;
+  float: right;
+  vertical-align: middle;
+  padding: @menu-vertical-padding 8px;
+  cursor: pointer;
+  border-left: 1px solid #888;
+}
+
+.dropdown-arrow {
+  width: 0;
+  height: 0;
+  display: inline-block;
+  vertical-align: middle;
+  border-top: 4px solid;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: -@options-border-thickness;
+  width: 100%;
+  z-index: 1000;
+  display: none;
+  list-style: outside none none;
+  float: left;
+  padding: 0;
+  margin-top: 0;
+  background: #ededed;
+  border: 1px solid #888;
+}
+
+.dropdown-menu li:first-child {
+  border-bottom: 1px solid #bbb;
 }

@@ -1,4 +1,4 @@
-<div class="page-name"><%= pageName %> <span class="options">(<a accesskey="e" id="edit-link" href="/edit/<%= pageName %>">edit</a><% if (pageName !== "WikiIndex") { %> | <a id="rename-link" href="/share/<%= pageName %>"><% if (isShared) { %>shared<% } else { %>share<% } %></a> | <a id="rename-link" href="/rename/<%= pageName %>">rename</a><% } %>)</span></div>
+<div class="page-name-container"><span class="page-name"><%= pageName %></span> <div class="options"><a accesskey="e" class="menu-option" id="edit-link" href="/edit/<%= pageName %>">Edit</a><% if (pageName !== "WikiIndex") { %><div class="dropdown-toggle-button"><span class="dropdown-arrow"></span></div><ul class="dropdown-menu" role="menu"><li><a class="menu-option" id="rename-link" href="/share/<%= pageName %>"><% if (isShared) { %>Shared<% } else { %>Share<% } %></a></li><li><a class="menu-option" id="rename-link" href="/rename/<%= pageName %>">Rename</a></li></ul><% } %></div></div>
 <div id="rendered-text" class="rendered-text-disabled"></div>
 <form id="edit-form" class="edit-form-disabled" action="/save/<%= pageName %>" method="post">
   <textarea id="raw-text" class="raw-text-disabled" name="rawText" cols="80" rows="30"><%= rawText %></textarea>
@@ -48,5 +48,19 @@
       $("#raw-text").removeClass("raw-text-enabled");
       return false;
     });
+
+    $(".options").hover(function() {
+      $(".dropdown-menu").show();
+    }, function() {
+      $(".dropdown-menu").hide();
+    });
+
+    $("#edit-link").hover(function() {
+      $(".dropdown-menu").hide();
+    }, function() {});
+
+    $(".dropdown-toggle-button").hover(function() {
+      $(".dropdown-menu").show();
+    }, function() {});
   });
 </script>
