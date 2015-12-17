@@ -12,12 +12,15 @@
       <div class="page-name-container"><span class="page-name"><%= pageName %></span></div>
       <div id="rendered-text" class="rendered-text-disabled"></div>
       <input id="raw-text" type="hidden" value="<%= rawText %>" />
+      <script src="/javascripts/md-liveupdater.js"></script>
       <script>
         $(document).ready(function() {
           var wikiSyntaxOptions = {wikiPageList: <%- wikiPageListJSON %>,
                                    sharedPage: true};
-          $("#rendered-text").html(wikisyntax($("#raw-text").val(),
-                                   wikiSyntaxOptions));
+
+          markdownLiveUpdater($("#raw-text"),
+                              $("#rendered-text"),
+                              wikiSyntaxOptions);
         });
       </script>
     </div>
