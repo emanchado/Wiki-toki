@@ -5,10 +5,12 @@ function updateWikiPage(wikiText, targetElement, parserOptions, imgEl) {
     targetElement.find('.picture-link').hover(function() {
         var position = $(this).position();
 
+        $.data(imgEl, 'shouldShow', true);
         imgEl.css({top: position.top + 20,
                    left: position.left + 20}).
             attr('src', this.href);
     }, function() {
+        $.data(imgEl, 'shouldShow', false);
         imgEl.css('display', 'none');
     });
 }
@@ -19,6 +21,10 @@ function markdownLiveUpdater(sourceElement, targetElement, parserOptions) {
         border: '1px solid black',
         display: 'none'
     }).load(function() {
+        if (!$.data(imgEl, 'shouldShow')) {
+            return;
+        }
+
         var imgWidth = this.width,
             imgHeight = this.height;
 
