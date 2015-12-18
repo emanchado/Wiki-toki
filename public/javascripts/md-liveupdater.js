@@ -19,6 +19,7 @@ function markdownLiveUpdater(sourceElement, targetElement, parserOptions) {
     var imgEl = $('<img>').css({
         position: 'absolute',
         border: '1px solid black',
+        backgroundImage: 'url("/images/checkers.jpg")',
         display: 'none'
     }).load(function() {
         if (!$.data(imgEl, 'shouldShow')) {
