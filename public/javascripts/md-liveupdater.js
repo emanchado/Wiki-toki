@@ -3,26 +3,26 @@
 function updateWikiPage(wikiText, targetElement, parserOptions, imgEl) {
     targetElement.html(wikisyntax(wikiText, parserOptions));
     targetElement.find('.picture-link').hover(function() {
-        $.data(imgEl, 'shouldShow', true);
-        $.data(imgEl, 'error', false);
-        $.data(imgEl, 'top', $(this).position().top);
-        $.data(imgEl, 'left', $(this).position().left);
+        imgEl.data('shouldShow', true);
+        imgEl.data('error', false);
+        imgEl.data('top', $(this).position().top);
+        imgEl.data('left', $(this).position().left);
         imgEl.attr('src', this.href);
     }, function() {
-        $.data(imgEl, 'shouldShow', false);
+        imgEl.data('shouldShow', false);
         imgEl.css('display', 'none');
     });
 }
 
-function markdownLiveUpdater(sourceElement, targetElement, parserOptions) {
-    var imgEl = $('<img>').css({
+function previewImageElement() {
+    return $('<img>').css({
         position: 'absolute',
         border: '1px solid black',
         borderRadius: '3%',
         backgroundImage: 'url("/images/checkers.jpg")',
         display: 'none'
     }).load(function() {
-        if (!$.data(imgEl, 'shouldShow')) {
+        if (!$(this).data('shouldShow')) {
             return;
         }
 
@@ -41,8 +41,8 @@ function markdownLiveUpdater(sourceElement, targetElement, parserOptions) {
             imgHeight = imgHeight / heightQuo;
         }
 
-        var imageLinkTop = $.data(imgEl, 'top'),
-            imageLinkLeft = $.data(imgEl, 'left'),
+        var imageLinkTop = $(this).data('top'),
+            imageLinkLeft = $(this).data('left'),
             win = $(window),
             windowTop = win.scrollTop(),
             windowBottom = windowTop + win.height(),
@@ -56,17 +56,21 @@ function markdownLiveUpdater(sourceElement, targetElement, parserOptions) {
             positionCss.top = imageLinkTop - imgHeight - 5;
         }
 
-        imgEl.css(positionCss).css({width: imgWidth,
+        $(this).css(positionCss).css({width: imgWidth,
                                     height: imgHeight,
                                     display: ''});
     }).error(function() {
-        if ($.data(imgEl, 'error')) {
-            $.data(imgEl, 'shouldShow', false);
+        if ($(this).data('error')) {
+            $(this).data('shouldShow', false);
         } else {
-            $.data(imgEl, 'error', true);
-            imgEl.attr('src', '/images/broken-image.png');
+            $(this).data('error', true);
+            $(this).attr('src', '/images/broken-image.png');
         }
     }).appendTo('body');
+}
+
+function markdownLiveUpdater(sourceElement, targetElement, parserOptions) {
+    var imgEl = previewImageElement();
 
     updateWikiPage(sourceElement.val(), targetElement, parserOptions, imgEl);
 
