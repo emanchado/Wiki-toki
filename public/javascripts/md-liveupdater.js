@@ -1,17 +1,35 @@
 /*global wikisyntax, $ */
 
-function updateWikiPage(wikiText, targetElement, parserOptions, imgEl) {
-    targetElement.html(wikisyntax(wikiText, parserOptions));
-    targetElement.find('.picture-link').hover(function() {
+function loadImageHandler(imgEl) {
+    return function() {
         imgEl.data('shouldShow', true);
         imgEl.data('error', false);
         imgEl.data('top', $(this).position().top);
         imgEl.data('left', $(this).position().left);
         imgEl.attr('src', this.href);
-    }, function() {
+    };
+}
+
+function hideImageHandler(imgEl) {
+    return function() {
         imgEl.data('shouldShow', false);
         imgEl.css('display', 'none');
-    });
+    };
+}
+
+function updateWikiPage(wikiText, targetElement, parserOptions, imgEl) {
+    targetElement.html(wikisyntax(wikiText, parserOptions));
+    targetElement.find('.picture-link').hover(loadImageHandler(imgEl),
+                                              hideImageHandler(imgEl));
+}
+
+function imageError(imgEl) {
+    if ($(imgEl).data('error')) {
+        $(imgEl).data('shouldShow', false);
+    } else {
+        $(imgEl).data('error', true);
+        $(imgEl).attr('src', '/images/broken-image.png');
+    }
 }
 
 function previewImageElement() {
@@ -57,15 +75,10 @@ function previewImageElement() {
         }
 
         $(this).css(positionCss).css({width: imgWidth,
-                                    height: imgHeight,
-                                    display: ''});
+                                       height: imgHeight,
+                                       display: ''});
     }).error(function() {
-        if ($(this).data('error')) {
-            $(this).data('shouldShow', false);
-        } else {
-            $(this).data('error', true);
-            $(this).attr('src', '/images/broken-image.png');
-        }
+        imageError(this);
     }).appendTo('body');
 }
 
