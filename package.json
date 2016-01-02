@@ -19,7 +19,8 @@
   "devDependencies": {
     "testem": ">= 0.2",
     "buster": ">= 0.7.0",
-    "fs-extra": ">= 0.16.0"
+    "fs-extra": ">= 0.16.0",
+    "robohydra": ">= 0.6.2"
   },
   "config": {
     "store-directory":   "store",
