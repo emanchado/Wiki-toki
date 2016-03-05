@@ -111,107 +111,105 @@ describe("Page info", function() {
 });
 
 describe("Title search", function() {
-    it("should return no results on empty search term", function(done) {
+    it("should return no results on empty search term", function() {
         var store = new WikiStore({
             storeDirectory: "test/buster/stores/trivial"
         });
-        store.searchTitles("", function(err, results) {
+
+        return store.searchTitles("").then(function(results) {
             expect(results).toEqual([]);
-            done();
         });
     });
 
-    it("should find single result on one-term search", function(done) {
+    it("should find single result on one-term search", function() {
         var store = new WikiStore({
             storeDirectory: "test/buster/stores/trivial"
         });
-        store.searchTitles("index", function(err, results) {
+
+        return store.searchTitles("index").then(function(results) {
             expect(results).toEqual(["WikiIndex"]);
-            done();
         });
     });
 
-    it("should find multiple results on one-term search", function(done) {
+    it("should find multiple results on one-term search", function() {
         var store = new WikiStore({
             storeDirectory: "test/buster/stores/simple"
         });
-        store.searchTitles("w", function(err, results) {
+
+        return store.searchTitles("w").then(function(results) {
             expect(results.sort()).toEqual(["OswaldoPetterson", "WikiIndex"]);
-            done();
         });
     });
 
-    it("should find results that have ALL search terms", function(done) {
+    it("should find results that have ALL search terms", function() {
         var store = new WikiStore({
             storeDirectory: "test/buster/stores/simple"
         });
-        store.searchTitles("w i", function(err, results) {
+
+        return store.searchTitles("w i").then(function(results) {
             expect(results).toEqual(["WikiIndex"]);
-            done();
         });
     });
 });
 
 describe("Content search", function() {
-    it("should return no results on empty search term", function(done) {
+    it("should return no results on empty search term", function() {
         var store = new WikiStore({
             storeDirectory: "test/buster/stores/content-search"
         });
-        store.searchContents("", function(err, results) {
+
+        return store.searchContents("").then(function(results) {
             expect(results).toEqual([]);
-            done();
         });
     });
 
-    it("should find single result on a simple, one-term search", function(done) {
+    it("should find single result on a simple, one-term search", function() {
         var store = new WikiStore({
             storeDirectory: "test/buster/stores/content-search"
         });
-        store.searchContents("front", function(err, results) {
+
+        return store.searchContents("front").then(function(results) {
             expect(results).toEqual(["WikiIndex"]);
-            done();
         });
     });
 
-    it("should find single results regarless of casing", function(done) {
+    it("should find single results regarless of casing", function() {
         var store = new WikiStore({
             storeDirectory: "test/buster/stores/content-search"
         });
-        store.searchContents("FRoNt", function(err, results) {
+
+        return store.searchContents("FRoNt").then(function(results) {
             expect(results).toEqual(["WikiIndex"]);
-            done();
         });
     });
 
-    it("should only find full words", function(done) {
+    it("should only find full words", function() {
         var store = new WikiStore({
             storeDirectory: "test/buster/stores/content-search"
         });
-        store.searchContents("fro", function(err, results) {
+
+        return store.searchContents("fro").then(function(results) {
             expect(results).toEqual([]);
-            done();
         });
     });
 
-    it("should not allow the user to sabotage the regular expression", function(done) {
+    it("should not allow the user to sabotage the regular expression", function() {
         var store = new WikiStore({
             storeDirectory: "test/buster/stores/content-search"
         });
-        store.searchContents("front\\", function(err, results) {
-            expect(err).toEqual(null);
+
+        return store.searchContents("front\\").then(function(results) {
             expect(results).toEqual(["WikiIndex"]);
-            done();
         });
     });
 
-    it("should allow the user to use regular expressions", function(done) {
+    it("should allow the user to use regular expressions", function() {
         var store = new WikiStore({
             storeDirectory: "test/buster/stores/content-search"
         });
-        store.searchContents("front.*", function(err, results) {
-            expect(err).toEqual(null);
+
+        return store.searchContents("front.*").then(function(results) {
             expect(results.sort()).toEqual(["ProgrammingLanguages", "WikiIndex"]);
-            done();
         });
     });
 });

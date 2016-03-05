@@ -149,41 +149,39 @@ app.post('/save/:pageName', authMiddleware, function(req, res) {
 });
 
 function doRename(store, oldPageName, newPageName, res) {
-    wikiStore.searchContents(oldPageName, function(err, results) {
-        if (err) {
-            res.render('error', {
-                message: "Couldn't read list of wiki pages from directory " +
-                    configuration.storeDirectory + " because: " + err
-            });
-        } else {
-            if (newPageName) {
-                wikiStore.renamePage(
-                    oldPageName,
-                    newPageName,
-                    function(err) {
-                        if (err) {
-                            res.render('rename', {
-                                pageName: oldPageName,
-                                linkingPages: results,
-                                error: err
-                            });
-                        } else if (results.length) {
-                            res.render('after-rename', {
-                                pageName: newPageName,
-                                oldPageName: oldPageName,
-                                linkingPages: results
-                            });
-                        } else {
-                            res.redirect('/view/' + newPageName);
-                        }
-                    });
-            } else {
-                res.render('rename', {
-                    pageName: oldPageName,
-                    linkingPages: results
+    wikiStore.searchContents(oldPageName).then(function(results) {
+        if (newPageName) {
+            wikiStore.renamePage(
+                oldPageName,
+                newPageName,
+                function(err) {
+                    if (err) {
+                        res.render('rename', {
+                            pageName: oldPageName,
+                            linkingPages: results,
+                            error: err
+                        });
+                    } else if (results.length) {
+                        res.render('after-rename', {
+                            pageName: newPageName,
+                            oldPageName: oldPageName,
+                            linkingPages: results
+                        });
+                    } else {
+                        res.redirect('/view/' + newPageName);
+                    }
                 });
-            }
+        } else {
+            res.render('rename', {
+                pageName: oldPageName,
+                linkingPages: results
+            });
         }
+    }).catch(function(err) {
+        res.render('error', {
+            message: "Couldn't read list of wiki pages from directory " +
+                configuration.storeDirectory + " because: " + err
+        });
     });
 }
 
@@ -204,40 +202,36 @@ app.all('/search', authMiddleware, function(req, res) {
     var searchTerms = req.query.searchterms;
 
     if (searchTerms.length && searchTerms[0] === '/') {
-        wikiStore.searchContents(searchTerms.substr(1), function(err, results) {
-            if (err) {
-                res.render('error', {
-                    message: "Couldn't read list of wiki pages from directory " +
-                        configuration.storeDirectory + " because: " + err
-                });
+        wikiStore.searchContents(searchTerms.substr(1)).then(function(results) {
+            if (results.length === 1) {
+                res.redirect('/view/' + results[0]);
             } else {
-                if (results.length === 1) {
-                    res.redirect('/view/' + results[0]);
-                } else {
-                    res.render('search', {
-                        searchTerms: searchTerms,
-                        results: results
-                    });
-                }
+                res.render('search', {
+                    searchTerms: searchTerms,
+                    results: results
+                });
             }
+        }).catch(function(err) {
+            res.render('error', {
+                message: "Couldn't read list of wiki pages from directory " +
+                    configuration.storeDirectory + " because: " + err
+            });
         });
     } else {
-        wikiStore.searchTitles(searchTerms, function(err, results) {
-            if (err) {
-                res.render('error', {
-                    message: "Couldn't read list of wiki pages from directory " +
-                        configuration.storeDirectory
-                });
+        wikiStore.searchTitles(searchTerms).then(function(results) {
+            if (results.length === 1) {
+                res.redirect('/view/' + results[0]);
             } else {
-                if (results.length === 1) {
-                    res.redirect('/view/' + results[0]);
-                } else {
-                    res.render('search', {
-                        searchTerms: searchTerms,
-                        results: results
-                    });
-                }
+                res.render('search', {
+                    searchTerms: searchTerms,
+                    results: results
+                });
             }
+        }).catch(function(/*err*/) {
+            res.render('error', {
+                message: "Couldn't read list of wiki pages from directory " +
+                    configuration.storeDirectory
+            });
         });
     }
 });
@@ -288,6 +282,18 @@ app.all('/shared/:shareId', function(req, res) {
     }).catch(function(/*err*/) {
         res.render('error', {
             message: "Couldn't find share id '" + shareId + "'"
+        });
+    });
+});
+
+app.post('/files/:pageName/:fileName', authMiddleware, function(req, res) {
+    var pageName = req.params.pageName;
+
+    wikiStore.unsharePage(pageName).then(function() {
+        res.redirect('/view/' + pageName);
+    }).catch(function(/*err*/) {
+        res.render('error', {
+            message: "Couldn't unshare page '" + pageName + "'"
         });
     });
 });
