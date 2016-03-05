@@ -242,36 +242,33 @@ describe("Rename page", function() {
         });
     });
 
-    it("should fail if the target page already exists", function(done) {
+    it("should fail if the target page already exists", function() {
         var self = this,
             origName = "IdontHaveDoubleU",
             targetName = "OswaldoPetterson";
 
-        self.store.renamePage(origName, targetName, function(err) {
-            expect(err).not.toEqual(null);
-            self.store.pageExists(origName, function(res) {
-                expect(res).toEqual(true);
-                done();
-            });
+        return self.store.renamePage(origName, targetName).fail(function() {
+            return self.store.pageExists(origName);
+        }).then(function(res) {
+            expect(res).toEqual(true);
         });
     });
 
-    it("should fail to rename WikiIndex", function(done) {
-        this.store.renamePage("WikiIndex", "WhateverElse", function(err) {
+    it("should fail to rename WikiIndex", function() {
+        return this.store.renamePage("WikiIndex", "WhateverElse").fail(function(err) {
             expect(err).not.toEqual(null);
-            done();
         });
     });
 
-    it("should fail if the original page doesn't exist", function(done) {
+    it("should fail if the original page doesn't exist", function() {
         var self = this;
-        self.store.renamePage("BlahBlah", "BlehBleh", function(err) {
+
+        return self.store.renamePage("BlahBlah", "BlehBleh").fail(function(err) {
             expect(err).not.toEqual(null);
 
-            self.store.pageExists("BlehBleh", function(res) {
-                expect(res).toEqual(false);
-                done();
-            });
+            return self.store.pageExists("BlehBleh");
+        }).then(function(res) {
+            expect(res).toEqual(false);
         });
     });
 
@@ -280,18 +277,19 @@ describe("Rename page", function() {
             origName = "IdontHaveDoubleU",
             targetName = "IdontHaveW";
 
-        self.store.renamePage(origName, targetName, function(err) {
-            expect(err).toEqual(null);
-            self.store.pageExists(origName, function(res) {
-                expect(res).toEqual(false);
-                self.store.pageExists(targetName, function(res) {
-                    expect(res).toEqual(true);
-                    self.store.readPage(targetName, function(err, text) {
-                        expect(err).toEqual(null);
-                        expect(text).toEqual("I don't have that letter!\n");
-                        done();
-                    });
-                });
+        self.store.renamePage(origName, targetName).then(function() {
+            return self.store.pageExists(origName);
+        }).then(function(res) {
+            expect(res).toEqual(false);
+
+            return self.store.pageExists(targetName);
+        }).then(function(res) {
+            expect(res).toEqual(true);
+
+            self.store.readPage(targetName, function(err, text) {
+                expect(err).toEqual(null);
+                expect(text).toEqual("I don't have that letter!\n");
+                done();
             });
         });
     });
