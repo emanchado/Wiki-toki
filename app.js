@@ -64,7 +64,7 @@ app.all('/list', authMiddleware, function(req, res) {
                     configuration.storeDirectory
             });
         } else {
-            wikiStore.getSharedPages(function(err, sharedPages) {
+            wikiStore.getSharedPages().then(function(sharedPages) {
                 res.render('index', {
                     pages: files,
                     shared: sharedPages
@@ -88,7 +88,7 @@ app.all('/view/:pageName', authMiddleware, function(req, res) {
                         wikiPageListJSON: JSON.stringify(wikiPageTitles)
                     });
                 } else {
-                    wikiStore.isPageShared(pageName, function(isShared) {
+                    wikiStore.isPageShared(pageName).then(function(isShared) {
                         res.render('view', {
                             pageName:         pageName,
                             rawText:          data.toString(),
@@ -245,28 +245,24 @@ app.all('/search', authMiddleware, function(req, res) {
 app.all('/share/:pageName', authMiddleware, function(req, res) {
     var pageName = req.params.pageName;
 
-    wikiStore.sharePage(pageName, function(err, shareId) {
-        if (err) {
-            res.render('error', {
-                message: "Couldn't share page '" + pageName + "'"
-            });
-        } else {
-            res.redirect('/shared/' + shareId);
-        }
+    wikiStore.sharePage(pageName).then(function(shareId) {
+        res.redirect('/shared/' + shareId);
+    }).catch(function(/*err*/) {
+        res.render('error', {
+            message: "Couldn't share page '" + pageName + "'"
+        });
     });
 });
 
 app.all('/unshare/:pageName', authMiddleware, function(req, res) {
     var pageName = req.params.pageName;
 
-    wikiStore.unsharePage(pageName, function(err) {
-        if (err) {
-            res.render('error', {
-                message: "Couldn't unshare page '" + pageName + "'"
-            });
-        } else {
-            res.redirect('/view/' + pageName);
-        }
+    wikiStore.unsharePage(pageName).then(function() {
+        res.redirect('/view/' + pageName);
+    }).catch(function(/*err*/) {
+        res.render('error', {
+            message: "Couldn't unshare page '" + pageName + "'"
+        });
     });
 });
 
@@ -274,27 +270,25 @@ app.all('/unshare/:pageName', authMiddleware, function(req, res) {
 app.all('/shared/:shareId', function(req, res) {
     var shareId = req.params.shareId;
 
-    wikiStore.pageNameForShareId(shareId, function(err, pageName) {
-        if (err) {
-            res.render('error', {
-                message: "Couldn't find share id '" + shareId + "'"
-            });
-        } else {
-            wikiStore.getPageList(function(err, wikiPageTitles) {
-                if (err) {
-                    res.render('error', {message: err});
-                } else {
-                    wikiStore.readPage(pageName, function(err, data) {
-                        res.render('shared', {
-                            layout: false,
-                            pageName:         pageName,
-                            rawText:          data.toString(),
-                            wikiPageListJSON: JSON.stringify(wikiPageTitles)
-                        });
+    wikiStore.pageNameForShareId(shareId).then(function(pageName) {
+        wikiStore.getPageList(function(err, wikiPageTitles) {
+            if (err) {
+                res.render('error', {message: err});
+            } else {
+                wikiStore.readPage(pageName, function(err, data) {
+                    res.render('shared', {
+                        layout: false,
+                        pageName:         pageName,
+                        rawText:          data.toString(),
+                        wikiPageListJSON: JSON.stringify(wikiPageTitles)
                     });
-                }
-            });
-        }
+                });
+            }
+        });
+    }).catch(function(/*err*/) {
+        res.render('error', {
+            message: "Couldn't find share id '" + shareId + "'"
+        });
     });
 });
 

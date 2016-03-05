@@ -327,135 +327,132 @@ describe("Share page", function() {
         });
     });
 
-    it("should be able to mark a page as shared", function(done) {
+    it("should be able to mark a page as shared", function() {
         var self = this,
-            pageName = "IdontHaveDoubleU";
+            pageName = "IdontHaveDoubleU",
+            expectedUuid;
 
-        self.store.sharePage(pageName, function(err, uuid) {
-            expect(err).toEqual(null);
+        return self.store.sharePage(pageName).then(function(uuid) {
             expect(uuid.length).toEqual(36);
-            self.store.pageShareId(pageName, function(err, actualUuid) {
-                expect(err).toEqual(null);
-                expect(actualUuid).toEqual(uuid);
-                done();
-            });
+            expectedUuid = uuid;
+            return self.store.pageShareId(pageName);
+        }).then(function(actualUuid) {
+            expect(actualUuid).toEqual(expectedUuid);
         });
     });
 
-    it("should reuse the same share id when sharing an already shared page", function(done) {
+    it("should reuse the same share id when sharing an already shared page", function() {
         var self = this,
             pageName = "IdontHaveDoubleU",
             initialShareId;
 
-        self.store.sharePage(pageName, function(err, shareId) {
-            expect(err).toEqual(null);
+        return self.store.sharePage(pageName).then(function(shareId) {
             initialShareId = shareId;
-            self.store.sharePage(pageName, function(err, shareId) {
-                expect(err).toEqual(null);
-                expect(shareId).toEqual(initialShareId);
-                done();
-            });
+            return self.store.sharePage(pageName);
+        }).then(function(shareId) {
+            expect(shareId).toEqual(initialShareId);
         });
     });
 
-    it("should be able to check if a page is shared", function(done) {
+    it("should be able to check if a page is shared", function() {
         var self = this,
             pageName = "IdontHaveDoubleU";
 
-        self.store.isPageShared(pageName, function(isSharedInitially) {
+        return self.store.isPageShared(pageName).then(function(isSharedInitially) {
             expect(isSharedInitially).toEqual(false);
 
-            self.store.sharePage(pageName, function(err/*, uuid*/) {
-                expect(err).toEqual(null);
-                self.store.isPageShared(pageName, function(isSharedNow) {
-                    expect(isSharedNow).toEqual(true);
-                    done();
-                });
-            });
+            return self.store.sharePage(pageName);
+        }).then(function(/*uuid*/) {
+            return self.store.isPageShared(pageName);
+        }).then(function(isSharedNow) {
+            expect(isSharedNow).toEqual(true);
         });
     });
 
-    it("should be able to remove a page share", function(done) {
+    it("should be able to remove a page share", function() {
         var self = this,
             pageName = "IdontHaveDoubleU";
 
-        self.store.isPageShared(pageName, function(isSharedInitially) {
+        return self.store.isPageShared(pageName).then(function(isSharedInitially) {
             expect(isSharedInitially).toEqual(false);
 
-            self.store.sharePage(pageName, function(err/*, uuid*/) {
-                expect(err).toEqual(null);
-                self.store.unsharePage(pageName, function(err) {
-                    expect(err).toEqual(null);
-                    self.store.isPageShared(pageName, function(isSharedNow) {
-                        expect(isSharedNow).toEqual(false);
-                        done();
-                    });
-                });
-            });
+            return self.store.sharePage(pageName);
+        }).then(function(/*uuid*/) {
+            return self.store.unsharePage(pageName);
+        }).then(function() {
+            return self.store.isPageShared(pageName);
+        }).then(function(isSharedNow) {
+            expect(isSharedNow).toEqual(false);
         });
     });
 
-    it("should return error when unsharing if the page is not shared", function(done) {
+    it("should return error when unsharing if the page is not shared", function() {
         var self = this,
             pageName = "IdontHaveDoubleU";
 
-        self.store.isPageShared(pageName, function(isSharedInitially) {
+        return self.store.isPageShared(pageName).then(function(isSharedInitially) {
             expect(isSharedInitially).toEqual(false);
 
-            self.store.unsharePage(pageName, function(err) {
-                expect(err).not.toEqual(null);
-                done();
-            });
+            return self.store.unsharePage(pageName);
+        }).then(function() {
+            expect("no error").toEqual("this should have been an error");
+        }).catch(function(err) {
+            expect(err).not.toEqual(null);
         });
     });
 
-    it("should assign a different share id every time a page is shared", function(done) {
+    it("should assign a different share id every time a page is shared", function() {
         var self = this,
             pageName = "IdontHaveDoubleU",
             firstShareId,
             newShareId;
 
-        self.store.sharePage(pageName, function(err, shareId) {
+        return self.store.sharePage(pageName, function(err, shareId) {
             expect(err).toEqual(null);
             firstShareId = shareId;
-            self.store.unsharePage(pageName, function(err) {
-                expect(err).toEqual(null);
-                self.store.sharePage(pageName, function(err, shareId) {
-                    expect(err).toEqual(null);
-                    expect(shareId).not.toEqual(firstShareId);
-                    newShareId = shareId;
-                    self.store.pageShareId(pageName, function(err, lastShareId) {
-                        expect(lastShareId).toEqual(newShareId);
-                        done();
-                    });
-                });
-            });
+            return self.store.unsharePage(pageName);
+        }).then(function() {
+            return self.store.sharePage(pageName);
+        }).then(function(shareId) {
+            expect(shareId).not.toEqual(firstShareId);
+            newShareId = shareId;
+            return self.store.pageShareId(pageName);
+        }).then(function(lastShareId) {
+            expect(lastShareId).toEqual(newShareId);
         });
     });
 
-    it("should give a list of shared pages", function(done) {
+    it("should give a list of shared pages", function() {
         var self = this,
             pageName = "IdontHaveDoubleU",
             shareId;
 
-        self.store.getSharedPages(function(err, sharedPageList) {
-            expect(err).toEqual(null);
+        return self.store.getSharedPages().then(function(sharedPageList) {
             expect(Object.keys(sharedPageList).length).toEqual(0);
 
-            self.store.sharePage(pageName, function(err, id) {
-                shareId = id;
-                self.store.getSharedPages(function(err, sharedPageList) {
-                    expect(err).toEqual(null);
-                    expect(sharedPageList[pageName]).toEqual(shareId);
+            return self.store.sharePage(pageName);
+        }).then(function(id) {
+            shareId = id;
+            return self.store.getSharedPages();
+        }).then(function(sharedPageList) {
+            expect(sharedPageList[pageName]).toEqual(shareId);
 
-                    self.store.unsharePage(pageName, function(/*err*/) {
-                        self.store.getSharedPages(function(err, sharedPageList) {
-                            expect(Object.keys(sharedPageList).length).toEqual(0);
-                            done();
-                        });
-                    });
-                });
-            });
+            return self.store.unsharePage(pageName);
+        }).then(function() {
+            return self.store.getSharedPages();
+        }).then(function(sharedPageList) {
+            expect(Object.keys(sharedPageList).length).toEqual(0);
+        });
+    });
+
+    it("should be able to retrieve the page name for a share id", function() {
+        var self = this,
+            pageName = "OswaldoPetterson";
+
+        return self.store.sharePage(pageName).then(function(shareId) {
+            return self.store.pageNameForShareId(shareId);
+        }).then(function(actualPageName) {
+            expect(actualPageName).toEqual(pageName);
         });
     });
 });
