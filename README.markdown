@@ -1,7 +1,7 @@
 Wiki-toki
 =========
 
-This is a _very_ simple wiki system written in Javascript (with
+This is a wiki system written in Javascript (with
 [express](http://expressjs.com/) /
 [Node.js](http://nodejs.org/)). It's designed to be used as a
 [personal wiki](http://en.wikipedia.org/wiki/Personal_wiki).
@@ -11,12 +11,13 @@ of "real" development with Node.js (I had written one experiment with
 Node.js before, but wanted to use an actual web development
 environment instead of writing everything by hand).
 
-It's very, very simple, and it will likely stay that way as this is
-strictly a _personal_ wiki. It has a "passphrase" to protect the site
-(no username/password pair, just a passphrase).
+It's simpler than many other wikis, and it will likely stay that way
+as this is strictly a _personal_ wiki. It has a "passphrase" to
+protect the site (no username/password pair, just a passphrase). The
+looks are somewhat spartan.
 
-The looks are pretty spartan. Maybe one day I'll bother to use
-Bootstrap or something similar. Patches welcome.
+Using it
+--------
 
 To configure it, you'll have to set the following configuration keys:
 
@@ -45,8 +46,15 @@ Or simply by setting them in `~/.npmrc`.
 Note the `--wiki-toki:quiet` option, which suppresses a startup
 message. You might need that to run Wiki-Toki on your web server.
 
+Running the tests
+-----------------
+
+You can run the unit tests with `buster-test`, and the functional
+tests by running `testem` and going to http://localhost:7357 with a
+web browser.
+
 Icons
-=====
+-----
 
 The picture and PDF link icons are made by Jozef Krajčovič, and taken
 from https://www.iconfinder.com/iconsets/document-icons-2.
