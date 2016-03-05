@@ -459,3 +459,125 @@ describe("Share page", function() {
         });
     });
 });
+
+describe("Attachments", function() {
+    var origDir = "test/buster/stores/simple",
+        targetDir = "test/buster/stores/attachments",
+        self = this;
+
+    beforeEach(function(done) {
+        fsExtra.copy(origDir, targetDir, function(err) {
+            if (err) {
+                throw new Error("Could not prepare store: " + err);
+            }
+
+            self.store = new WikiStore({
+                storeDirectory: targetDir
+            });
+
+            done();
+        });
+    });
+
+    afterEach(function(done) {
+        fsExtra.remove(targetDir, function(err) {
+            if (err) {
+                throw new Error("Could not delete store: " + err);
+            }
+            done();
+        });
+    });
+
+    it("should have no attachments by default", function() {
+        return self.store.getAttachmentList("WikiIndex").then(function(attachments) {
+            expect(attachments).toEqual([]);
+        });
+    });
+
+    it("should be created and retrieved", function() {
+        var attachmentName = "foobar.txt",
+            attachmentContents = "foobar is a very nice file";
+
+        return self.store.writeAttachment("WikiIndex", attachmentName, attachmentContents).then(function() {
+            return self.store.getAttachmentList("WikiIndex");
+        }).then(function(attachments) {
+            var attachmentNames = attachments.map(function(attachment) {
+                return attachment.filename;
+            });
+            expect(attachmentNames).toEqual([attachmentName]);
+
+            return self.store.readAttachment("WikiIndex", attachmentName);
+        }).catch(function(contents) {
+            expect(contents).toEqual(attachmentContents);
+        });
+    });
+
+    it("should not be tricked by paths when writing attachments", function() {
+        var attachmentBaseName = "lol.txt",
+            attachmentName = "../" + attachmentBaseName;
+
+        return self.store.writeAttachment("WikiIndex", attachmentName, "lol").then(function() {
+            return self.store.getAttachmentList("WikiIndex");
+        }).then(function(attachments) {
+            var attachmentNames = attachments.map(function(attachment) {
+                return attachment.filename;
+            });
+            expect(attachmentNames).toEqual([attachmentBaseName]);
+        });
+    });
+
+    it("should not be tricked by paths when reading attachments", function() {
+        var attachmentBaseName = "contents",
+            attachmentName = "../" + attachmentBaseName,
+            attachmentContents = "Some test contents";
+
+        return self.store.writeAttachment("WikiIndex", attachmentName, attachmentContents).then(function() {
+            return self.store.readAttachment("WikiIndex", attachmentName);
+        }).then(function(contents) {
+            expect(contents.toString()).toEqual(attachmentContents);
+        });
+    });
+
+    it("should return file size and modification time", function() {
+        var attachmentName = "foo.txt",
+            attachmentContents = "This is a fake, testing file",
+            contentsSize = attachmentContents.length,
+            nowInSeconds = Math.floor(new Date().getTime() / 1000);
+
+        return self.store.writeAttachment("WikiIndex", attachmentName, attachmentContents).then(function() {
+            return self.store.getAttachmentList("WikiIndex");
+        }).then(function(attachments) {
+            var mtimeEpoch = attachments[0].mtime.getTime() / 1000;
+            expect(attachments[0].size).toEqual(contentsSize);
+            expect(mtimeEpoch).not.toBeLessThan(nowInSeconds);
+            expect(mtimeEpoch).toBeLessThan(nowInSeconds + 3);
+        });
+    });
+
+    it("should overwrite previous attachments with the same name", function() {
+        var attachmentName = "foo.txt",
+            originalContents = "Original contents",
+            updatedContents = "Updated contents";
+
+        return self.store.writeAttachment(
+            "WikiIndex",
+            attachmentName,
+            originalContents
+        ).then(function() {
+            return self.store.writeAttachment("WikiIndex",
+                                              attachmentName,
+                                              updatedContents);
+        }).then(function() {
+            return self.store.getAttachmentList("WikiIndex");
+        }).then(function(attachments) {
+            var attachmentNames = attachments.map(function(attachment) {
+                return attachment.filename;
+            });
+            expect(attachmentNames).toEqual([attachmentName]);
+
+            return self.store.readAttachment("WikiIndex", attachmentName);
+        }).then(function(contents) {
+            expect(contents.toString()).toEqual(updatedContents);
+        });
+    });
+});
