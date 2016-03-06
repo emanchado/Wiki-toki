@@ -44,34 +44,32 @@ describe("Page save", function() {
         storeUpgrader.upgrade(storeDir);
     });
 
-    it("should create pages", function(done) {
+    it("should create pages", function() {
         var store = new WikiStore({
             storeDirectory: storeDir
         });
         var pageContents = "New page\n";
 
-        store.writePage("WikiIndex", pageContents, function() {
-            store.readPage("WikiIndex").then(function(text) {
-                expect(text).toEqual(pageContents);
-                done();
-            });
+        return store.writePage("WikiIndex", pageContents).then(function() {
+            return store.readPage("WikiIndex");
+        }).then(function(text) {
+            expect(text).toEqual(pageContents);
         });
     });
-    
-    it("should modify already-existing pages", function(done) {
+
+    it("should modify already-existing pages", function() {
         var store = new WikiStore({
             storeDirectory: storeDir
         });
         var contents1 = "New page\n",
             contents2 = "Modified page\n";
 
-        store.writePage("WikiIndex", contents1, function() {
-            store.writePage("WikiIndex", contents2, function() {
-                store.readPage("WikiIndex").then(function(text) {
-                    expect(text).toEqual(contents2);
-                    done();
-                });
-            });
+        return store.writePage("WikiIndex", contents1).then(function() {
+            return store.writePage("WikiIndex", contents2);
+        }).then(function() {
+            return store.readPage("WikiIndex");
+        }).then(function(text) {
+            expect(text).toEqual(contents2);
         });
     });
 });

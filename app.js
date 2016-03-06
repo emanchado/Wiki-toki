@@ -124,17 +124,13 @@ app.post('/save/:pageName', authMiddleware, function(req, res) {
     if (typeof(newPageContents) === 'undefined' || newPageContents === "") {
         res.redirect('/view/' + req.params.pageName);
     } else {
-        wikiStore.writePage(req.params.pageName,
-                            newPageContents,
-                            function(err) {
-                                if (err) {
-                                    res.render('error', {
-                                        message: "Couldn't read page " + req.params.pageName
-                                    });
-                                } else {
-                                    res.redirect('/view/' + req.params.pageName);
-                                }
-                            });
+        wikiStore.writePage(req.params.pageName, newPageContents).then(function() {
+            res.redirect('/view/' + req.params.pageName);
+        }).catch(function(/*err*/) {
+            res.render('error', {
+                message: "Couldn't read page " + req.params.pageName
+            });
+        });
     }
 });
 
