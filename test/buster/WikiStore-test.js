@@ -17,21 +17,18 @@ describe("Retrieval", function() {
         });
     });
 
-    it("should return an error for non-existing pages", function(done) {
+    it("should return an error for non-existing pages", function() {
         var store = this.store;
-        store.readPage("WikiIndexx", function(err) {
+        return store.readPage("WikiIndexx").fail(function(err) {
             expect(err).not.toEqual(null);
-            store.readPage("WikiIndex", function(err) {
-                expect(err).toEqual(null);
-                done();
-            });
+
+            return store.readPage("WikiIndex");
         });
     });
 
-    it("should retrieve existing pages", function(done) {
-        this.store.readPage("WikiIndex", function(err, text) {
+    it("should retrieve existing pages", function() {
+        return this.store.readPage("WikiIndex").then(function(text) {
             expect(text).toEqual("This is the index\n");
-            done();
         });
     });
 });
@@ -54,7 +51,7 @@ describe("Page save", function() {
         var pageContents = "New page\n";
 
         store.writePage("WikiIndex", pageContents, function() {
-            store.readPage("WikiIndex", function(err, text) {
+            store.readPage("WikiIndex").then(function(text) {
                 expect(text).toEqual(pageContents);
                 done();
             });
@@ -70,7 +67,7 @@ describe("Page save", function() {
 
         store.writePage("WikiIndex", contents1, function() {
             store.writePage("WikiIndex", contents2, function() {
-                store.readPage("WikiIndex", function(err, text) {
+                store.readPage("WikiIndex").then(function(text) {
                     expect(text).toEqual(contents2);
                     done();
                 });
@@ -284,8 +281,7 @@ describe("Rename page", function() {
         }).then(function(res) {
             expect(res).toEqual(true);
 
-            self.store.readPage(targetName, function(err, text) {
-                expect(err).toEqual(null);
+            self.store.readPage(targetName).then(function(text) {
                 expect(text).toEqual("I don't have that letter!\n");
                 done();
             });

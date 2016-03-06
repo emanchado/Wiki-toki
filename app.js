@@ -76,22 +76,20 @@ app.all('/view/:pageName', authMiddleware, function(req, res) {
     var pageName = req.params.pageName;
 
     wikiStore.getPageList().then(function(wikiPageTitles) {
-        wikiStore.readPage(pageName, function(err, data) {
-            if (err) {
-                res.render('create', {
+        wikiStore.readPage(pageName).then(function(data) {
+            wikiStore.isPageShared(pageName).then(function(isShared) {
+                res.render('view', {
                     pageName:         pageName,
-                    wikiPageListJSON: JSON.stringify(wikiPageTitles)
+                    rawText:          data.toString(),
+                    wikiPageListJSON: JSON.stringify(wikiPageTitles),
+                    isShared:         isShared
                 });
-            } else {
-                wikiStore.isPageShared(pageName).then(function(isShared) {
-                    res.render('view', {
-                        pageName:         pageName,
-                        rawText:          data.toString(),
-                        wikiPageListJSON: JSON.stringify(wikiPageTitles),
-                        isShared:         isShared
-                    });
-                });
-            }
+            });
+        }).catch(function(/*err*/) {
+            res.render('create', {
+                pageName:         pageName,
+                wikiPageListJSON: JSON.stringify(wikiPageTitles)
+            });
         });
     }).catch(function(err) {
         res.render('error', {message: err});
@@ -104,19 +102,17 @@ app.all('/create/:pageName', authMiddleware, function(req, res) {
 
 app.all('/edit/:pageName', authMiddleware, function(req, res) {
     wikiStore.getPageList().then(function(wikiPageTitles) {
-        wikiStore.readPage(req.params.pageName, function(err, data) {
-            if (err) {
-                res.render('create', {
-                    pageName:         req.params.pageName,
-                    wikiPageListJSON: JSON.stringify(wikiPageTitles)
-                });
-            } else {
-                res.render('edit', {
-                    pageName:         req.params.pageName,
-                    rawText:          data.toString(),
-                    wikiPageListJSON: JSON.stringify(wikiPageTitles)
-                });
-            }
+        wikiStore.readPage(req.params.pageName).then(function(data) {
+            res.render('edit', {
+                pageName:         req.params.pageName,
+                rawText:          data.toString(),
+                wikiPageListJSON: JSON.stringify(wikiPageTitles)
+            });
+        }).catch(function(/*err*/) {
+            res.render('create', {
+                pageName:         req.params.pageName,
+                wikiPageListJSON: JSON.stringify(wikiPageTitles)
+            });
         });
     }).catch(function(err) {
         res.render('error', {message: err});
@@ -257,7 +253,7 @@ app.all('/shared/:shareId', function(req, res) {
 
     wikiStore.pageNameForShareId(shareId).then(function(pageName) {
         wikiStore.getPageList().then(function(wikiPageTitles) {
-            wikiStore.readPage(pageName, function(err, data) {
+            wikiStore.readPage(pageName).then(function(data) {
                 res.render('shared', {
                     layout: false,
                     pageName:         pageName,
