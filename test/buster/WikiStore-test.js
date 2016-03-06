@@ -80,23 +80,22 @@ describe("Page save", function() {
 });
 
 describe("Page info", function() {
-    it("should return an error on non-existing store", function(done) {
+    it("should return an error on non-existing store", function() {
         var store = new WikiStore({
             storeDirectory: "test/buster/stores/non-existent"
         });
 
-        store.getPageInfo(function(err) {
+        return store.getPageInfo().fail(function(err) {
             expect(err).not.toEqual(null);
-            done();
         });
     });
 
-    it("should return relevant info on an existing store", function(done) {
+    it("should return relevant info on an existing store", function() {
         var store = new WikiStore({
             storeDirectory: "test/buster/stores/trivial"
         });
 
-        store.getPageInfo(function(err, pageInfoArray) {
+        return store.getPageInfo().then(function(pageInfoArray) {
             var sortedPageInfoArray = pageInfoArray.sort(function(a, b) {
                 return a.title.localeCompare(b.title);
             });
@@ -105,7 +104,6 @@ describe("Page info", function() {
             expect(sortedPageInfoArray[0].contents).toEqual("Some other content\n");
             expect(sortedPageInfoArray[1].title).toEqual("WikiIndex");
             expect(sortedPageInfoArray[1].contents).toEqual("Index page\n");
-            done();
         });
     });
 });
