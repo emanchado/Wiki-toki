@@ -1,4 +1,4 @@
-<div class="page-name-container"><span class="page-name"><%= pageName %></span> <div class="options"><a accesskey="e" class="menu-option" id="edit-link" href="/edit/<%= pageName %>">Edit</a><% if (pageName !== "WikiIndex") { %><div class="dropdown-toggle-button"><span class="dropdown-arrow"></span></div><ul class="dropdown-menu" role="menu"><li><a class="menu-option" id="rename-link" href="/share/<%= pageName %>"><% if (isShared) { %>Shared<% } else { %>Share<% } %></a></li><li><a class="menu-option" id="rename-link" href="/rename/<%= pageName %>">Rename</a></li></ul><% } %></div></div>
+<div class="page-name-container"><span class="page-name"><%= pageName %></span> <div class="options edit-ui"><a accesskey="e" class="menu-option" id="edit-link" href="/edit/<%= pageName %>">Edit</a><% if (pageName !== "WikiIndex") { %><div class="dropdown-toggle-button"><span class="dropdown-arrow"></span></div><ul class="dropdown-menu" role="menu"><li><a class="menu-option" id="rename-link" href="/share/<%= pageName %>"><% if (isShared) { %>Shared<% } else { %>Share<% } %></a></li><li><a class="menu-option" id="rename-link" href="/rename/<%= pageName %>">Rename</a></li></ul><% } %></div></div>
 <div id="rendered-text" class="rendered-text-disabled"></div>
 <form id="edit-form" class="edit-form-disabled" action="/save/<%= pageName %>" method="post">
   <textarea id="raw-text" class="raw-text-disabled" name="rawText" cols="80" rows="30"><%= rawText %></textarea>
@@ -11,27 +11,27 @@
   </div>
 </form>
 
-<div class="attachment-list">
-  <h1>Attachment List</h1>
+<div class="attachment-list edit-ui">
+  <div class="section-title">Attachments</div>
 
   <ul>
+    <% attachments.forEach(function(attachment) { %>
     <li class="attachment">
-      <span class="attachment-info"><a href="#">blah.zip</a> <span class="uploaded">(Uploaded 2016-03-03)</span></span>
-      <img class="attachment-options" src="/images/trash.png" />
+      <span class="attachment-info"><a href="/attachments/<%= pageName %>/<%= attachment.filename %>"><%= attachment.filename %></a> <span class="uploaded">(Uploaded <%= formatDate(attachment.mtime) %>)</span></span>
+      <form method="post" action="/attachments/<%= pageName %>/<%= attachment.filename %>">
+        <input type="hidden" name="action" value="delete" />
+        <button type="submit" onclick="return confirm('Are you sure you want to delete &quot;<%= attachment.filename %>&quot;?')">
+          <img class="attachment-options" title="Delete <%= attachment.filename %>%>" src="/images/trash.png" />
+        </button>
+      </form>
     </li>
-    <li class="attachment">
-      <span class="attachment-info"><a href="#">blah.pdf</a> <span class="uploaded">(Uploaded 2016-03-04)</span></span>
-      <img class="attachment-options" src="/images/trash.png" />
-    </li>
-    <li class="attachment">
-      <span class="attachment-info"><a href="#">blah.jpg</a> <span class="uploaded">(Uploaded 2016-03-04)</span></span>
-      <img class="attachment-options" src="/images/trash.png" />
-    </li>
-    <li class="attachment">
-      <span class="attachment-info"><a href="#">blah.png</a> <span class="uploaded">(Uploaded 2016-03-04)</span></span>
-      <img class="attachment-options" src="/images/trash.png" />
-    </li>
+    <% }); %>
   </ul>
+
+  <form action="/attachments/<%= pageName %>" method="post" enctype="multipart/form-data">
+    <input type="file" name="attachment" />
+    <input type="submit" value="Upload" />
+  </form>
 </div>
 
 <script src="/javascripts/md-liveupdater.js"></script>
@@ -44,7 +44,7 @@
                         wikiSyntaxOptions);
 
     $("#edit-link").click(function() {
-      $(".options").hide();
+      $(".edit-ui").hide();
       $("#rendered-text").animate({ width: "50%" }, 300);
       $("#rendered-text").addClass("rendered-text-enabled");
       $("#rendered-text").removeClass("rendered-text-disabled");
@@ -58,7 +58,7 @@
     });
 
     $("#cancel-button").click(function() {
-      $(".options").show();
+      $(".edit-ui").show();
       $("#edit-form").animate({ width: "0" }, 300);
       $("#edit-form").addClass("edit-form-disabled");
       $("#edit-form").removeClass("edit-form-enabled");

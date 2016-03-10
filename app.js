@@ -5,6 +5,9 @@ var express = require('express'),
     expressLess = require("express-less"),
     expressLayout = require("express-layout"),
     errorhandler = require("errorhandler"),
+    path = require("path"),
+    formidable = require('formidable'),
+    Q = require("q"),
 
     WikiStore = require("./lib/WikiStore"),
     middlewares = require("./lib/middlewares"),
@@ -51,6 +54,16 @@ if (env === 'production') {
     app.use(express.errorHandler()); 
 }
 
+function formatDate(d) {
+    var year = d.getFullYear(),
+        month = d.getMonth(),
+        day = d.getDate(),
+        paddedMonth = month < 10 ? "0" + month : month,
+        paddedDay = day < 10 ? "0" + day : day;
+
+    return year + "-" + paddedMonth + "-" + paddedDay;
+}
+
 // Routes
 app.all('/', authMiddleware, function(req, res) {
     res.redirect('/view/WikiIndex');
@@ -78,11 +91,15 @@ app.all('/view/:pageName', authMiddleware, function(req, res) {
     wikiStore.getPageList().then(function(wikiPageTitles) {
         wikiStore.readPage(pageName).then(function(data) {
             wikiStore.isPageShared(pageName).then(function(isShared) {
-                res.render('view', {
-                    pageName:         pageName,
-                    rawText:          data.toString(),
-                    wikiPageListJSON: JSON.stringify(wikiPageTitles),
-                    isShared:         isShared
+                wikiStore.getAttachmentList(pageName).then(function(attachmentList) {
+                    res.render('view', {
+                        pageName:         pageName,
+                        rawText:          data.toString(),
+                        wikiPageListJSON: JSON.stringify(wikiPageTitles),
+                        isShared:         isShared,
+                        attachments:      attachmentList,
+                        formatDate:       formatDate
+                    });
                 });
             });
         }).catch(function(/*err*/) {
@@ -267,16 +284,56 @@ app.all('/shared/:shareId', function(req, res) {
     });
 });
 
-app.post('/files/:pageName/:fileName', authMiddleware, function(req, res) {
+app.get('/attachments/:pageName/:name', authMiddleware, function(req, res) {
+    var pageName = req.params.pageName,
+        name = req.params.name;
+
+    wikiStore.getAttachmentPath(pageName, name).then(function(attachmentPath) {
+        res.sendFile(attachmentPath);
+    });
+});
+
+app.post('/attachments/:pageName', authMiddleware, function(req, res) {
     var pageName = req.params.pageName;
 
-    wikiStore.unsharePage(pageName).then(function() {
-        res.redirect('/view/' + pageName);
-    }).catch(function(/*err*/) {
+    var form = new formidable.IncomingForm();
+    form.uploadDir = wikiStore.config.storeDirectory;
+
+    Q.ninvoke(form, "parse", req).spread(function(fields, files) {
+        var uploadedFileInfo = files.attachment,
+            filename = path.basename(uploadedFileInfo.name),
+            tmpPath = uploadedFileInfo.path;
+
+        wikiStore.addAttachment(pageName, filename, tmpPath).then(function() {
+            res.redirect('/view/' + pageName);
+        }).catch(function(err) {
+            res.render('error', {
+                message: "Couldn't save attachment: " + err
+            });
+        });
+    }).catch(function(err) {
         res.render('error', {
-            message: "Couldn't unshare page '" + pageName + "'"
+            message: "Could not upload attachment: " + err
         });
     });
+});
+
+app.post('/attachments/:pageName/:name', authMiddleware, function(req, res) {
+    var pageName = req.params.pageName,
+        name = req.params.name,
+        action = req.body.action;
+
+    if (action === 'delete') {
+        wikiStore.deleteAttachment(pageName, name).then(function() {
+            res.redirect('/view/' + pageName);
+        }).catch(function(err) {
+            res.render('error', {
+                message: "Could not delete attachment: " + err
+            });
+        });
+    } else {
+        res.redirect('/view/' + pageName);
+    }
 });
 
 app.all('/logout', function(req, res) {

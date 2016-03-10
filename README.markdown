@@ -60,4 +60,7 @@ The picture and PDF link icons are made by Jozef Krajčovič, and taken
 from https://www.iconfinder.com/iconsets/document-icons-2.
 
 The search icon is made by Yannick Lung, and was taken from
-https://www.iconfinder.com/icons/314478/search_icon#size=16
+https://www.iconfinder.com/icons/314478/search_icon#size=16.
+
+The trashcan icon is also made by Yannick Lung, and was taken from
+https://www.iconfinder.com/iconsets/freecns-cumulus.

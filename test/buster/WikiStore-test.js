@@ -1,9 +1,9 @@
 /*global describe, it, beforeEach, afterEach */
 
-var buster = require("buster"),
-    fs = require("fs"),
-    path = require("path"),
-    fsExtra = require("fs-extra");
+var Q = require("q"),
+    buster = require("buster"),
+    fse = require("fs-extra"),
+    path = require("path");
 var WikiStore = require("../../lib/WikiStore.js"),
     storeUpgrader = require("../../lib/storeUpgrader");
 
@@ -37,10 +37,10 @@ describe("Page save", function() {
     var storeDir = "test/buster/stores/save";
 
     beforeEach(function() {
-        fsExtra.removeSync(storeDir);
-        fs.mkdirSync(storeDir);
-        fs.writeFileSync(path.join(storeDir, "WikiIndex"),
-                         "Index intentionally (almost) blank.");
+        fse.removeSync(storeDir);
+        fse.mkdirSync(storeDir);
+        fse.writeFileSync(path.join(storeDir, "WikiIndex"),
+                          "Index intentionally (almost) blank.");
         storeUpgrader.upgrade(storeDir);
     });
 
@@ -213,7 +213,7 @@ describe("Rename page", function() {
         self = this;
 
     beforeEach(function(done) {
-        fsExtra.copy(origDir, targetDir, function(err) {
+        fse.copy(origDir, targetDir, function(err) {
             if (err) {
                 throw new Error("Could not prepare store: " + err);
             }
@@ -227,7 +227,7 @@ describe("Rename page", function() {
     });
 
     afterEach(function(done) {
-        fsExtra.remove(targetDir, function(err) {
+        fse.remove(targetDir, function(err) {
             if (err) {
                 throw new Error("Could not delete store: " + err);
             }
@@ -293,7 +293,7 @@ describe("Share page", function() {
         self = this;
 
     beforeEach(function(done) {
-        fsExtra.copy(origDir, targetDir, function(err) {
+        fse.copy(origDir, targetDir, function(err) {
             if (err) {
                 throw new Error("Could not prepare store: " + err);
             }
@@ -307,7 +307,7 @@ describe("Share page", function() {
     });
 
     afterEach(function(done) {
-        fsExtra.remove(targetDir, function(err) {
+        fse.remove(targetDir, function(err) {
             if (err) {
                 throw new Error("Could not delete store: " + err);
             }
@@ -451,7 +451,7 @@ describe("Attachments", function() {
         self = this;
 
     beforeEach(function(done) {
-        fsExtra.copy(origDir, targetDir, function(err) {
+        fse.copy(origDir, targetDir, function(err) {
             if (err) {
                 throw new Error("Could not prepare store: " + err);
             }
@@ -465,7 +465,7 @@ describe("Attachments", function() {
     });
 
     afterEach(function(done) {
-        fsExtra.remove(targetDir, function(err) {
+        fse.remove(targetDir, function(err) {
             if (err) {
                 throw new Error("Could not delete store: " + err);
             }
@@ -481,9 +481,12 @@ describe("Attachments", function() {
 
     it("should be created and retrieved", function() {
         var attachmentName = "foobar.txt",
-            attachmentContents = "foobar is a very nice file";
+            attachmentContents = "foobar is a very nice file",
+            tmpPath = path.join(targetDir, "xxx");
 
-        return self.store.writeAttachment("WikiIndex", attachmentName, attachmentContents).then(function() {
+        fse.writeFileSync(tmpPath, attachmentContents);
+
+        return self.store.addAttachment("WikiIndex", attachmentName, tmpPath).then(function() {
             return self.store.getAttachmentList("WikiIndex");
         }).then(function(attachments) {
             var attachmentNames = attachments.map(function(attachment) {
@@ -491,17 +494,22 @@ describe("Attachments", function() {
             });
             expect(attachmentNames).toEqual([attachmentName]);
 
-            return self.store.readAttachment("WikiIndex", attachmentName);
-        }).catch(function(contents) {
-            expect(contents).toEqual(attachmentContents);
+            return self.store.getAttachmentPath("WikiIndex", attachmentName);
+        }).then(function(path) {
+            return Q.nfcall(fse.readFile, path);
+        }).then(function(contents) {
+            expect(contents.toString()).toEqual(attachmentContents);
         });
     });
 
     it("should not be tricked by paths when writing attachments", function() {
         var attachmentBaseName = "lol.txt",
-            attachmentName = "../" + attachmentBaseName;
+            attachmentName = "../" + attachmentBaseName,
+            tmpPath = path.join(targetDir, "xxx");
 
-        return self.store.writeAttachment("WikiIndex", attachmentName, "lol").then(function() {
+        fse.writeFileSync(tmpPath, "lol");
+
+        return self.store.addAttachment("WikiIndex", attachmentName, tmpPath).then(function() {
             return self.store.getAttachmentList("WikiIndex");
         }).then(function(attachments) {
             var attachmentNames = attachments.map(function(attachment) {
@@ -514,10 +522,15 @@ describe("Attachments", function() {
     it("should not be tricked by paths when reading attachments", function() {
         var attachmentBaseName = "contents",
             attachmentName = "../" + attachmentBaseName,
-            attachmentContents = "Some test contents";
+            attachmentContents = "Some test contents",
+            tmpPath = path.join(targetDir, "xxx");
 
-        return self.store.writeAttachment("WikiIndex", attachmentName, attachmentContents).then(function() {
-            return self.store.readAttachment("WikiIndex", attachmentName);
+        fse.writeFileSync(tmpPath, attachmentContents);
+
+        return self.store.addAttachment("WikiIndex", attachmentName, tmpPath).then(function() {
+            return self.store.getAttachmentPath("WikiIndex", attachmentName);
+        }).then(function(path) {
+            return Q.nfcall(fse.readFile, path);
         }).then(function(contents) {
             expect(contents.toString()).toEqual(attachmentContents);
         });
@@ -527,9 +540,12 @@ describe("Attachments", function() {
         var attachmentName = "foo.txt",
             attachmentContents = "This is a fake, testing file",
             contentsSize = attachmentContents.length,
-            nowInSeconds = Math.floor(new Date().getTime() / 1000);
+            nowInSeconds = Math.floor(new Date().getTime() / 1000),
+            tmpPath = path.join(targetDir, "xxx");
 
-        return self.store.writeAttachment("WikiIndex", attachmentName, attachmentContents).then(function() {
+        fse.writeFileSync(tmpPath, attachmentContents);
+
+        return self.store.addAttachment("WikiIndex", attachmentName, tmpPath).then(function() {
             return self.store.getAttachmentList("WikiIndex");
         }).then(function(attachments) {
             var mtimeEpoch = attachments[0].mtime.getTime() / 1000;
@@ -542,16 +558,21 @@ describe("Attachments", function() {
     it("should overwrite previous attachments with the same name", function() {
         var attachmentName = "foo.txt",
             originalContents = "Original contents",
-            updatedContents = "Updated contents";
+            updatedContents = "Updated contents",
+            origTmpPath = path.join(targetDir, "xxx"),
+            updatedTmpPath = path.join(targetDir, "yyy");
 
-        return self.store.writeAttachment(
+        fse.writeFileSync(origTmpPath, originalContents);
+        fse.writeFileSync(updatedTmpPath, updatedContents);
+
+        return self.store.addAttachment(
             "WikiIndex",
             attachmentName,
-            originalContents
+            origTmpPath
         ).then(function() {
-            return self.store.writeAttachment("WikiIndex",
-                                              attachmentName,
-                                              updatedContents);
+            return self.store.addAttachment("WikiIndex",
+                                            attachmentName,
+                                            updatedTmpPath);
         }).then(function() {
             return self.store.getAttachmentList("WikiIndex");
         }).then(function(attachments) {
@@ -560,9 +581,46 @@ describe("Attachments", function() {
             });
             expect(attachmentNames).toEqual([attachmentName]);
 
-            return self.store.readAttachment("WikiIndex", attachmentName);
+            return self.store.getAttachmentPath("WikiIndex", attachmentName);
+        }).then(function(path) {
+            return Q.nfcall(fse.readFile, path);
         }).then(function(contents) {
             expect(contents.toString()).toEqual(updatedContents);
+        });
+    });
+
+    it("should delete attachments", function() {
+        var attachmentName = "foo.txt",
+            attachmentContents = "foobar",
+            attachmentPath = path.join(targetDir, "xxx");
+
+        fse.writeFileSync(attachmentPath, attachmentContents);
+
+        return self.store.addAttachment(
+            "WikiIndex",
+            attachmentName,
+            attachmentPath
+        ).then(function() {
+            return self.store.deleteAttachment("WikiIndex", attachmentName);
+        }).then(function() {
+            return self.store.getAttachmentList("WikiIndex");
+        }).then(function(attachments) {
+            expect(attachments).toEqual([]);
+        });
+    });
+
+    it("should return an error when deleting a non-exsting attachment", function() {
+        var success = null;
+
+        return self.store.deleteAttachment(
+            "WikiIndex",
+            "idontexist.txt"
+        ).then(function() {
+            success = false;
+        }).catch(function() {
+            success = true;
+        }).then(function() {
+            expect(success).toEqual(true);
         });
     });
 });
