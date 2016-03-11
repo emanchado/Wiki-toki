@@ -268,7 +268,7 @@ app.all('/shared/:shareId', function(req, res) {
         wikiStore.getPageList().then(function(wikiPageTitles) {
             wikiStore.readPage(pageName).then(function(data) {
                 res.render('shared', {
-                    layout: false,
+                    layout:           false,
                     pageName:         pageName,
                     rawText:          data.toString(),
                     wikiPageListJSON: JSON.stringify(wikiPageTitles)
