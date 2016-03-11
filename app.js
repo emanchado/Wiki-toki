@@ -322,20 +322,20 @@ app.all('/shared/:shareId', function(req, res) {
     var shareId = req.params.shareId;
 
     wikiStore.pageNameForShareId(shareId).then(function(pageName) {
-        wikiStore.getPageList().then(function(wikiPageTitles) {
-            wikiStore.readPage(pageName).then(function(data) {
-                wikiStore.getAttachmentList(pageName).then(function(attachmentList) {
-                    res.render('shared', {
-                        layout:           false,
-                        shareId:          shareId,
-                        pageName:         pageName,
-                        rawText:          data.toString(),
-                        wikiPageListJSON: JSON.stringify(wikiPageTitles),
-                        attachments:      attachmentList,
-                        attachmentBaseUrl: '/shared/' + shareId + '/attachments',
-                        formatDate:       formatDate
-                    });
-                });
+        Q.all([
+            wikiStore.getPageList(),
+            wikiStore.readPage(pageName),
+            wikiStore.getAttachmentList(pageName)
+        ]).spread(function(wikiPageTitles, data, attachmentList) {
+            res.render('shared', {
+                layout:            false,
+                shareId:           shareId,
+                pageName:          pageName,
+                rawText:           data.toString(),
+                wikiPageListJSON:  JSON.stringify(wikiPageTitles),
+                attachments:       attachmentList,
+                attachmentBaseUrl: '/shared/' + shareId + '/attachments',
+                formatDate:        formatDate
             });
         }).catch(function(err) {
             res.render('error', {message: err});
