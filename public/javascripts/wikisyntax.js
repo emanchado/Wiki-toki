@@ -41,6 +41,17 @@ function prettifyLinks(tree) {
     return tree;
 }
 
+function attachmentLinks(tree, attachmentBaseUrl) {
+    var url = tree[1].href;
+
+    if (new RegExp('^attachment://').test(url)) {
+        tree[1].href =
+            tree[1].href.replace('attachment://', attachmentBaseUrl + '/');
+    }
+
+    return tree;
+}
+
 function _extraMarkup(tree, options) {
     function matchSorter(a, b) {
         var aIndex = (a[1] === null) ? Infinity : a[1].index,
@@ -50,7 +61,7 @@ function _extraMarkup(tree, options) {
     }
 
     if (tree[0] === "link") {
-        return prettifyLinks(tree);
+        return prettifyLinks(attachmentLinks(tree, options.attachmentBaseUrl));
     }
 
     for (var i = 1, len = tree.length; i < len; i++) {

@@ -98,6 +98,7 @@ app.all('/view/:pageName', authMiddleware, function(req, res) {
                         wikiPageListJSON: JSON.stringify(wikiPageTitles),
                         isShared:         isShared,
                         attachments:      attachmentList,
+                        attachmentBaseUrl: '/attachments/' + pageName,
                         formatDate:       formatDate
                     });
                 });
@@ -260,36 +261,16 @@ app.all('/unshare/:pageName', authMiddleware, function(req, res) {
     });
 });
 
-// NOTE: This is not authenticated, that's the whole point of it!
-app.all('/shared/:shareId', function(req, res) {
-    var shareId = req.params.shareId;
-
-    wikiStore.pageNameForShareId(shareId).then(function(pageName) {
-        wikiStore.getPageList().then(function(wikiPageTitles) {
-            wikiStore.readPage(pageName).then(function(data) {
-                res.render('shared', {
-                    layout:           false,
-                    pageName:         pageName,
-                    rawText:          data.toString(),
-                    wikiPageListJSON: JSON.stringify(wikiPageTitles)
-                });
-            });
-        }).catch(function(err) {
-            res.render('error', {message: err});
-        });
-    }).catch(function(/*err*/) {
-        res.render('error', {
-            message: "Couldn't find share id '" + shareId + "'"
-        });
-    });
-});
-
 app.get('/attachments/:pageName/:name', authMiddleware, function(req, res) {
     var pageName = req.params.pageName,
         name = req.params.name;
 
     wikiStore.getAttachmentPath(pageName, name).then(function(attachmentPath) {
         res.sendFile(attachmentPath);
+    }).catch(function(err) {
+        res.render('error', {
+            message: "Couldn't download attachment: " + err
+        });
     });
 });
 
@@ -334,6 +315,56 @@ app.post('/attachments/:pageName/:name', authMiddleware, function(req, res) {
     } else {
         res.redirect('/view/' + pageName);
     }
+});
+
+// NOTE: This is not authenticated, that's the whole point of it!
+app.all('/shared/:shareId', function(req, res) {
+    var shareId = req.params.shareId;
+
+    wikiStore.pageNameForShareId(shareId).then(function(pageName) {
+        wikiStore.getPageList().then(function(wikiPageTitles) {
+            wikiStore.readPage(pageName).then(function(data) {
+                wikiStore.getAttachmentList(pageName).then(function(attachmentList) {
+                    res.render('shared', {
+                        layout:           false,
+                        shareId:          shareId,
+                        pageName:         pageName,
+                        rawText:          data.toString(),
+                        wikiPageListJSON: JSON.stringify(wikiPageTitles),
+                        attachments:      attachmentList,
+                        attachmentBaseUrl: '/shared/' + shareId + '/attachments',
+                        formatDate:       formatDate
+                    });
+                });
+            });
+        }).catch(function(err) {
+            res.render('error', {message: err});
+        });
+    }).catch(function(/*err*/) {
+        res.render('error', {
+            message: "Couldn't find share id '" + shareId + "'"
+        });
+    });
+});
+
+// NOTE: This is not authenticated, that's the whole point of it!
+app.get('/shared/:shareId/attachments/:name', function(req, res) {
+    var shareId = req.params.shareId,
+        name = req.params.name;
+
+    wikiStore.pageNameForShareId(shareId).then(function(pageName) {
+        wikiStore.getAttachmentPath(pageName, name).then(function(attachmentPath) {
+            res.sendFile(attachmentPath);
+        }).catch(function(err) {
+            res.render('error', {
+                message: "Couldn't download attachment: " + err
+            });
+        });
+    }).catch(function(/*err*/) {
+        res.render('error', {
+            message: "Couldn't find share id '" + shareId + "'"
+        });
+    });
 });
 
 app.all('/logout', function(req, res) {

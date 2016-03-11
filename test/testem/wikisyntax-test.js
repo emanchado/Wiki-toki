@@ -307,6 +307,16 @@ describe("WikiSyntax", function() {
         });
     });
 
+    describe("Attachment syntax", function() {
+        it("should link to attachments", function() {
+            var result = wikisyntax("[foo](attachment://tpsreport.pdf)",
+                                    {attachmentBaseUrl: "/attachments/Test"});
+            this.dom.innerHTML = result;
+            var links = this.dom.getElementsByTagName('a');
+            expect(links[0].href).toMatch('/attachments/Test/tpsreport.pdf$');
+        });
+    });
+
     describe("Strike-out syntax", function() {
         it("should recognise strike-out marks", function() {
             var result = wikisyntax("You're an ~~idiot~~ troubled individual.");

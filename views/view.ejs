@@ -11,33 +11,16 @@
   </div>
 </form>
 
-<div id="attachment-list" class="attachment-list edit-ui" <% if (attachments.length === 0) { %>style="display: none;"<% } %>>
-  <div class="section-title">Attachments</div>
-
-  <ul>
-    <% attachments.forEach(function(attachment) { %>
-    <li class="attachment">
-      <span class="attachment-info"><a href="/attachments/<%= pageName %>/<%= attachment.filename %>"><%= attachment.filename %></a> <span class="uploaded">(Uploaded <%= formatDate(attachment.mtime) %>)</span></span>
-      <form method="post" action="/attachments/<%= pageName %>/<%= attachment.filename %>">
-        <input type="hidden" name="action" value="delete" />
-        <button type="submit" onclick="return confirm('Are you sure you want to delete &quot;<%= attachment.filename %>&quot;?')">
-          <img class="attachment-options" title="Delete <%= attachment.filename %>%>" src="/images/trash.png" />
-        </button>
-      </form>
-    </li>
-    <% }); %>
-  </ul>
-
-  <form action="/attachments/<%= pageName %>" method="post" enctype="multipart/form-data">
-    <input id="attachment-file" type="file" name="attachment" />
-    <input type="submit" value="Upload" />
-  </form>
-</div>
+<%- include("_attachments", {pageName: pageName,
+                             attachments: attachments,
+                             attachmentBaseUrl: attachmentBaseUrl,
+                             readOnly: false}) %>
 
 <script src="/javascripts/md-liveupdater.js"></script>
 <script>
   $(document).ready(function() {
-    var wikiSyntaxOptions = {wikiPageList: <%- wikiPageListJSON %>};
+    var wikiSyntaxOptions = {wikiPageList: <%- wikiPageListJSON %>,
+                             attachmentBaseUrl: "<%= attachmentBaseUrl %>"};
 
     markdownLiveUpdater($("#raw-text"),
                         $("#rendered-text"),

@@ -12,10 +12,17 @@
       <div class="page-name-container"><span class="page-name"><%= pageName %></span></div>
       <div id="rendered-text" class="rendered-text-disabled"></div>
       <input id="raw-text" type="hidden" value="<%= rawText %>" />
+
+      <%- include("_attachments", {pageName: pageName,
+                                   attachments: attachments,
+                                   attachmentBaseUrl: attachmentBaseUrl,
+                                   readOnly: true}) %>
+
       <script src="/javascripts/md-liveupdater.js"></script>
       <script>
         $(document).ready(function() {
           var wikiSyntaxOptions = {wikiPageList: <%- wikiPageListJSON %>,
+                                   attachmentBaseUrl: "<%= attachmentBaseUrl %>",
                                    sharedPage: true};
 
           markdownLiveUpdater($("#raw-text"),
