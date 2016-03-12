@@ -18,6 +18,19 @@
 
 <script src="/javascripts/md-liveupdater.js"></script>
 <script>
+  function clipboardCopy(text) {
+    var tmpEl = document.createElement('input');
+    tmpEl.setAttribute('type', 'text');
+    tmpEl.setAttribute('style', 'height: 1px; border: 0');
+    tmpEl.setAttribute('value', text);
+    document.body.appendChild(tmpEl);
+    tmpEl.select();
+    if (!document.execCommand('copy')) {
+      alert("Could not copy '" + text + "' to the clipboard");
+    }
+    document.body.removeChild(tmpEl);
+  }
+
   $(document).ready(function() {
     var wikiSyntaxOptions = {wikiPageList: <%- wikiPageListJSON %>,
                              attachmentBaseUrl: "<%= attachmentBaseUrl %>"};
