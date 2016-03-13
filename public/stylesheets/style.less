@@ -119,9 +119,12 @@ br {
 }
 
 .edit-helpers {
-  float: left;
   font-size: 80%;
-  margin-bottom: 5px;
+  width: 100%;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: top;
 }
 
 .error {
@@ -151,15 +154,13 @@ br {
   width: 45%;
 }
 
-.raw-text-enabled {
+#raw-text {
   width: 100%;
 }
 
 div.button-bar {
-  float: right;
   margin-top: 0.5ex;
   margin-right: 0;
-  border-right: 0;
 }
 
 .button, input[type=button], input[type=submit] {

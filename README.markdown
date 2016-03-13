@@ -64,3 +64,7 @@ https://www.iconfinder.com/icons/314478/search_icon#size=16.
 
 The trashcan icon is also made by Yannick Lung, and was taken from
 https://www.iconfinder.com/iconsets/freecns-cumulus.
+
+The add attachment icon is made by Linh Pham Thi Dieu, and was taken
+from
+https://www.iconfinder.com/icons/763486/add_circle_new_outline_plus_sign_stroke_icon#size=128.

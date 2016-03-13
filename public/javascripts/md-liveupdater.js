@@ -1,4 +1,5 @@
 /*global wikisyntax, $ */
+/*exported markdownLiveUpdater*/
 
 var SPINNER_WIDTH = 16,
     SPINNER_HEIGHT = 16,

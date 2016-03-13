@@ -119,12 +119,23 @@ app.all('/create/:pageName', authMiddleware, function(req, res) {
 });
 
 app.all('/edit/:pageName', authMiddleware, function(req, res) {
+    var pageName = req.params.pageName;
+
     wikiStore.getPageList().then(function(wikiPageTitles) {
-        wikiStore.readPage(req.params.pageName).then(function(data) {
-            res.render('edit', {
-                pageName:         req.params.pageName,
-                rawText:          data.toString(),
-                wikiPageListJSON: JSON.stringify(wikiPageTitles)
+        wikiStore.readPage(pageName).then(function(data) {
+            wikiStore.getAttachmentList(pageName).then(function(attachmentList) {
+                wikiStore.isPageShared(pageName).then(function(isShared) {
+                    res.render('view', {
+                        pageName:         pageName,
+                        rawText:          data.toString(),
+                        wikiPageListJSON: JSON.stringify(wikiPageTitles),
+                        isShared:         isShared,
+                        attachments:      attachmentList,
+                        attachmentBaseUrl: '/attachments/' + pageName,
+                        formatDate:       formatDate,
+                        editMode:         true
+                    });
+                });
             });
         }).catch(function(/*err*/) {
             res.render('create', {

@@ -1,36 +1,44 @@
-<div class="page-name-container"><span class="page-name"><%= pageName %></span> <div class="options edit-ui"><a accesskey="e" class="menu-option" id="edit-link" href="/edit/<%= pageName %>">Edit</a><div class="dropdown-toggle-button"><span class="dropdown-arrow"></span></div><ul class="dropdown-menu" role="menu"><li><a class="menu-option" id="share-link" href="/share/<%= pageName %>"><% if (isShared) { %>Shared<% } else { %>Share<% } %></a></li><% if (pageName !== "WikiIndex") { %><li><a class="menu-option" id="rename-link" href="/rename/<%= pageName %>">Rename</a></li><% } %><li><a class="menu-option" id="attach-link" href="#attachment-list">Attach</a></li></ul></div></div>
+<div class="page-name-container">
+  <span class="page-name"><%= pageName %></span>
+  <div class="options only-view-ui">
+    <a accesskey="e" class="menu-option" id="edit-link" href="/edit/<%= pageName %>">Edit</a>
+    <div class="dropdown-toggle-button"><span class="dropdown-arrow"></span></div>
+    <ul class="dropdown-menu" role="menu">
+      <li><a class="menu-option" id="share-link" href="/share/<%= pageName %>"><% if (isShared) { %>Shared<% } else { %>Share<% } %></a></li>
+      <% if (pageName !== "WikiIndex") { %>
+        <li><a class="menu-option" id="rename-link" href="/rename/<%= pageName %>">Rename</a></li>
+      <% } %>
+      <li><a class="menu-option" id="attach-link" href="#attachment-list">Attach</a></li>
+    </ul>
+  </div>
+</div>
+
 <div id="rendered-text" class="rendered-text-disabled"></div>
 <form id="edit-form" class="edit-form-disabled" action="/save/<%= pageName %>" method="post">
-  <textarea id="raw-text" class="raw-text-disabled" name="rawText" cols="80" rows="30"><%= rawText %></textarea>
-  <div class="button-bar">
-    <input accesskey="s" id="save-button" class="default-button" type="submit" value="Save" />
-    <input accesskey="c" id="cancel-button" class="button" type="button" value="Cancel" />
-  </div>
+  <textarea id="raw-text" name="rawText" cols="80" rows="30"><%= rawText %></textarea>
   <div class="edit-helpers">
-    <a href="http://daringfireball.net/projects/markdown/syntax" target="markdown">Syntax help</a>
+    <a href="http://daringfireball.net/projects/markdown/syntax" tabindex="1" target="markdown">Syntax help</a>
+
+    <div class="button-bar">
+      <input accesskey="s" id="save-button" class="default-button" type="submit" value="Save" />
+      <input accesskey="c" id="cancel-button" class="button" type="button" value="Cancel" />
+    </div>
+  </div>
+
+  <div style="clear: left">
+    <%- include("attachments/_edit", {attachments: attachments,
+        attachmentBaseUrl: attachmentBaseUrl,
+        readOnly: false}) %>
   </div>
 </form>
 
-<%- include("_attachments", {pageName: pageName,
-                             attachments: attachments,
-                             attachmentBaseUrl: attachmentBaseUrl,
-                             readOnly: false}) %>
+<%- include("attachments/_view", {attachments: attachments,
+                                  attachmentBaseUrl: attachmentBaseUrl,
+                                  readOnly: false}) %>
 
 <script src="/javascripts/md-liveupdater.js"></script>
+<script src="/javascripts/utils.js"></script>
 <script>
-  function clipboardCopy(text) {
-    var tmpEl = document.createElement('input');
-    tmpEl.setAttribute('type', 'text');
-    tmpEl.setAttribute('style', 'height: 1px; border: 0');
-    tmpEl.setAttribute('value', text);
-    document.body.appendChild(tmpEl);
-    tmpEl.select();
-    if (!document.execCommand('copy')) {
-      alert("Could not copy '" + text + "' to the clipboard");
-    }
-    document.body.removeChild(tmpEl);
-  }
-
   $(document).ready(function() {
     var wikiSyntaxOptions = {wikiPageList: <%- wikiPageListJSON %>,
                              attachmentBaseUrl: "<%= attachmentBaseUrl %>"};
@@ -40,16 +48,15 @@
                         wikiSyntaxOptions);
 
     $("#edit-link").click(function() {
-      $(".edit-ui").hide();
+      $(".only-view-ui").hide();
       $("#rendered-text").animate({ width: "50%" }, 300);
       $("#rendered-text").addClass("rendered-text-enabled");
       $("#rendered-text").removeClass("rendered-text-disabled");
       $("#edit-form").addClass("edit-form-enabled");
       $("#edit-form").removeClass("edit-form-disabled");
       $("#edit-form").animate({ width: "45%" }, 300);
-      $("#raw-text").addClass("raw-text-enabled");
-      $("#raw-text").removeClass("raw-text-disabled");
       $("#raw-text").focus();
+      window.scrollTo(0, 0);
       return false;
     });
 
@@ -59,7 +66,7 @@
     });
 
     $("#cancel-button").click(function() {
-      $(".edit-ui").show();
+      $(".only-view-ui").show();
       $("#edit-form").animate({ width: "0" }, 300);
       $("#edit-form").addClass("edit-form-disabled");
       $("#edit-form").removeClass("edit-form-enabled");
@@ -69,8 +76,6 @@
       $("#rendered-text").animate({ width: "60%" }, 300);
       $("#rendered-text").addClass("rendered-text-disabled");
       $("#rendered-text").removeClass("rendered-text-enabled");
-      $("#raw-text").addClass("raw-text-disabled");
-      $("#raw-text").removeClass("raw-text-enabled");
       return false;
     });
 
@@ -87,5 +92,9 @@
     $(".dropdown-toggle-button").hover(function() {
       $(".dropdown-menu").show();
     }, function() {});
+
+    <% if (typeof editMode !== 'undefined' && editMode) { %>
+      $("#edit-link").click();
+    <% } %>
   });
 </script>

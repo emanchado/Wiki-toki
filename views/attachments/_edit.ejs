@@ -1,0 +1,12 @@
+<ul style="padding-left: 0">
+  <% attachments.forEach(function(attachment) { %>
+    <li class="attachment">
+      <span class="attachment-info"><a href="<%= attachmentBaseUrl %>/<%= attachment.filename %>"><%= attachment.filename %></a> <span class="uploaded">(Uploaded <%= formatDate(attachment.mtime) %>)</span></span>
+      <form method="post" action="<%= attachmentBaseUrl %>/<%= attachment.filename %>">
+        <button onclick="addToTextarea($('#raw-text')[0], 'attachment://<%= attachment.filename %>'); return false;">
+          <img class="attachment-options" title="Add reference to <%= attachment.filename %>" src="/images/add.png" />
+        </button>
+      </form>
+    </li>
+  <% }); %>
+</ul>

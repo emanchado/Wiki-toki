@@ -1,11 +1,11 @@
-<div id="attachment-list" class="attachment-list edit-ui" <% if (attachments.length === 0) { %>style="display: none;"<% } %>>
+<div id="attachment-list" class="attachment-list only-view-ui" <% if (attachments.length === 0) { %>style="display: none;"<% } %>>
   <div class="section-title">Attachments</div>
 
   <ul>
     <% attachments.forEach(function(attachment) { %>
       <li class="attachment">
         <span class="attachment-info"><a href="<%= attachmentBaseUrl %>/<%= attachment.filename %>"><%= attachment.filename %></a> <span class="uploaded">(Uploaded <%= formatDate(attachment.mtime) %>)</span></span>
-        <form method="post" action="/attachments/<%= pageName %>/<%= attachment.filename %>">
+        <form method="post" action="<%= attachmentBaseUrl %>/<%= attachment.filename %>">
           <% if (!readOnly) { %>
             <button onclick="clipboardCopy('attachment://<%= attachment.filename %>'); return false;">
               <img class="attachment-options" title="Copy URL for <%= attachment.filename %>" src="/images/copy.png" />
@@ -21,7 +21,7 @@
   </ul>
 
   <% if (!readOnly) { %>
-  <form action="/attachments/<%= pageName %>" method="post" enctype="multipart/form-data">
+  <form action="<%= attachmentBaseUrl %>" method="post" enctype="multipart/form-data">
     <input id="attachment-file" type="file" name="attachment" />
     <input type="submit" value="Upload" />
   </form>

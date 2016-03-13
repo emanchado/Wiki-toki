@@ -13,10 +13,10 @@
       <div id="rendered-text" class="rendered-text-disabled"></div>
       <input id="raw-text" type="hidden" value="<%= rawText %>" />
 
-      <%- include("_attachments", {pageName: pageName,
-                                   attachments: attachments,
-                                   attachmentBaseUrl: attachmentBaseUrl,
-                                   readOnly: true}) %>
+      <%- include("attachments/_view", {pageName: pageName,
+                                        attachments: attachments,
+                                        attachmentBaseUrl: attachmentBaseUrl,
+                                        readOnly: true}) %>
 
       <script src="/javascripts/md-liveupdater.js"></script>
       <script>
