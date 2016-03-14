@@ -37,7 +37,7 @@
                                   readOnly: false}) %>
 
 <script src="/javascripts/md-liveupdater.js"></script>
-<script src="/javascripts/utils.js"></script>
+<script src="/javascripts/editing-utils.js"></script>
 <script>
   $(document).ready(function() {
     var wikiSyntaxOptions = {wikiPageList: <%- wikiPageListJSON %>,
@@ -59,6 +59,14 @@
       window.scrollTo(0, 0);
       return false;
     });
+
+    $("#edit-link").hover(function() {
+        $(".dropdown-menu").hide();
+    }, function() {});
+
+    $(".dropdown-toggle-button").hover(function() {
+        $(".dropdown-menu").show();
+    }, function() {});
 
     $("#attach-link").click(function() {
       $("#attachment-list").show();
@@ -85,15 +93,7 @@
       $(".dropdown-menu").hide();
     });
 
-    $("#edit-link").hover(function() {
-      $(".dropdown-menu").hide();
-    }, function() {});
-
-    $(".dropdown-toggle-button").hover(function() {
-      $(".dropdown-menu").show();
-    }, function() {});
-
-    <% if (typeof editMode !== 'undefined' && editMode) { %>
+    <% if (typeof initialMode !== 'undefined' && initialMode === 'edit') { %>
       $("#edit-link").click();
     <% } %>
   });

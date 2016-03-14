@@ -10,6 +10,7 @@ var express = require('express'),
     Q = require("q"),
 
     WikiStore = require("./lib/WikiStore"),
+    render = require("./lib/render"),
     middlewares = require("./lib/middlewares"),
     storeUpgrader = require("./lib/storeUpgrader");
 
@@ -54,16 +55,6 @@ if (env === 'production') {
     app.use(express.errorHandler()); 
 }
 
-function formatDate(d) {
-    var year = d.getFullYear(),
-        month = d.getMonth(),
-        day = d.getDate(),
-        paddedMonth = month < 10 ? "0" + month : month,
-        paddedDay = day < 10 ? "0" + day : day;
-
-    return year + "-" + paddedMonth + "-" + paddedDay;
-}
-
 // Routes
 app.all('/', authMiddleware, function(req, res) {
     res.redirect('/view/WikiIndex');
@@ -86,66 +77,11 @@ app.all('/list', authMiddleware, function(req, res) {
 });
 
 app.all('/view/:pageName', authMiddleware, function(req, res) {
-    var pageName = req.params.pageName;
-
-    wikiStore.getPageList().then(function(wikiPageTitles) {
-        wikiStore.readPage(pageName).then(function(data) {
-            wikiStore.isPageShared(pageName).then(function(isShared) {
-                wikiStore.getAttachmentList(pageName).then(function(attachmentList) {
-                    res.render('view', {
-                        pageName:         pageName,
-                        rawText:          data.toString(),
-                        wikiPageListJSON: JSON.stringify(wikiPageTitles),
-                        isShared:         isShared,
-                        attachments:      attachmentList,
-                        attachmentBaseUrl: '/attachments/' + pageName,
-                        formatDate:       formatDate
-                    });
-                });
-            });
-        }).catch(function(/*err*/) {
-            res.render('create', {
-                pageName:         pageName,
-                wikiPageListJSON: JSON.stringify(wikiPageTitles)
-            });
-        });
-    }).catch(function(err) {
-        res.render('error', {message: err});
-    });
-});
-
-app.all('/create/:pageName', authMiddleware, function(req, res) {
-    res.redirect('/view/' + req.params.pageName);
+    render.renderPage(res, wikiStore, req.params.pageName);
 });
 
 app.all('/edit/:pageName', authMiddleware, function(req, res) {
-    var pageName = req.params.pageName;
-
-    wikiStore.getPageList().then(function(wikiPageTitles) {
-        wikiStore.readPage(pageName).then(function(data) {
-            wikiStore.getAttachmentList(pageName).then(function(attachmentList) {
-                wikiStore.isPageShared(pageName).then(function(isShared) {
-                    res.render('view', {
-                        pageName:         pageName,
-                        rawText:          data.toString(),
-                        wikiPageListJSON: JSON.stringify(wikiPageTitles),
-                        isShared:         isShared,
-                        attachments:      attachmentList,
-                        attachmentBaseUrl: '/attachments/' + pageName,
-                        formatDate:       formatDate,
-                        editMode:         true
-                    });
-                });
-            });
-        }).catch(function(/*err*/) {
-            res.render('create', {
-                pageName:         req.params.pageName,
-                wikiPageListJSON: JSON.stringify(wikiPageTitles)
-            });
-        });
-    }).catch(function(err) {
-        res.render('error', {message: err});
-    });
+    render.renderPage(res, wikiStore, req.params.pageName, 'edit');
 });
 
 app.post('/save/:pageName', authMiddleware, function(req, res) {
@@ -163,47 +99,13 @@ app.post('/save/:pageName', authMiddleware, function(req, res) {
     }
 });
 
-function doRename(store, oldPageName, newPageName, res) {
-    wikiStore.searchContents(oldPageName).then(function(results) {
-        if (newPageName) {
-            wikiStore.renamePage(oldPageName, newPageName).then(function() {
-                if (results.length) {
-                    res.render('after-rename', {
-                        pageName: newPageName,
-                        oldPageName: oldPageName,
-                        linkingPages: results
-                    });
-                } else {
-                    res.redirect('/view/' + newPageName);
-                }
-            }).catch(function(err) {
-                res.render('rename', {
-                    pageName: oldPageName,
-                    linkingPages: results,
-                    error: err
-                });
-            });
-        } else {
-            res.render('rename', {
-                pageName: oldPageName,
-                linkingPages: results
-            });
-        }
-    }).catch(function(err) {
-        res.render('error', {
-            message: "Couldn't read list of wiki pages from directory " +
-                configuration.storeDirectory + " because: " + err
-        });
-    });
-}
-
 app.all('/rename/:pageName', authMiddleware, function(req, res) {
     var oldPageName = req.params.pageName,
         newPageName = req.body.newPageName;
 
     wikiStore.pageExists(oldPageName).then(function(exists) {
         if (exists) {
-            doRename(wikiStore, oldPageName, newPageName, res);
+            render.doRename(wikiStore, oldPageName, newPageName, res);
         } else {
             res.redirect('/view/' + oldPageName);
         }
@@ -346,7 +248,7 @@ app.all('/shared/:shareId', function(req, res) {
                 wikiPageListJSON:  JSON.stringify(wikiPageTitles),
                 attachments:       attachmentList,
                 attachmentBaseUrl: '/shared/' + shareId + '/attachments',
-                formatDate:        formatDate
+                formatDate:        render.formatDate
             });
         }).catch(function(err) {
             res.render('error', {message: err});
