@@ -1,6 +1,6 @@
-<div class="page-name"><%= pageName %></div>
+<div class="page-name"><%= pageInfo.name %></div>
 <div id="rendered-text" class="rendered-text-enabled"></div>
-<form id="edit-form" class="edit-form-enabled" action="/save/<%= pageName %>" method="post">
+<form id="edit-form" class="edit-form-enabled" action="/save/<%= pageInfo.name %>" method="post">
   <textarea id="raw-text" class="raw-text-enabled" name="rawText" cols="80" rows="30" autofocus="autofocus"></textarea>
   <div class="button-bar">
     <input accesskey="s" id="save-button" class="default-button" type="submit" value="Create" />
@@ -13,7 +13,7 @@
 <script src="/javascripts/md-liveupdater.js"></script>
 <script>
   $(document).ready(function() {
-    var wikiSyntaxOptions = {wikiPageList: <%- wikiPageListJSON %>};
+    var wikiSyntaxOptions = {wikiPageList: <%- JSON.stringify(pageInfo.wikiPageList) %>};
 
     markdownLiveUpdater($("#raw-text"),
                         $("#rendered-text"),
