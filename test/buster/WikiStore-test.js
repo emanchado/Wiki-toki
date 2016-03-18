@@ -479,6 +479,18 @@ describe("Attachments", function() {
         });
     });
 
+    it("should reject the promise to get attachments for non-existent pages", function() {
+        var success = null;
+
+        return self.store.getAttachmentList("NonExistentPage").then(function() {
+            success = false;
+        }).catch(function() {
+            success = true;
+        }).then(function() {
+            expect(success).toEqual(true);
+        });
+    });
+
     it("should be created and retrieved", function() {
         var attachmentName = "foobar.txt",
             attachmentContents = "foobar is a very nice file",
@@ -621,6 +633,32 @@ describe("Attachments", function() {
             success = true;
         }).then(function() {
             expect(success).toEqual(true);
+        });
+    });
+
+    it("renaming a page makes it keep its attachments", function() {
+        var pageName = "OswaldoPetterson",
+            newPageName = "RenamedWikiPage",
+            attachmentName = "foo.txt",
+            attachmentPath = path.join(targetDir, "xxx");
+
+        fse.writeFileSync(attachmentPath, "foobar");
+
+        return self.store.addAttachment(
+            pageName,
+            attachmentName,
+            attachmentPath
+        ).then(function() {
+            return self.store.renamePage(pageName, newPageName);
+        }).then(function() {
+            return self.store.getAttachmentList(newPageName);
+        }).then(function(attachments) {
+            expect(attachments.length).toEqual(1);
+            expect(attachments[0].filename).toEqual(attachmentName);
+        }).then(function() {
+            return self.store.getAttachmentList(pageName);
+        }).fail(function(err) {
+            expect(err).not.toEqual(null);
         });
     });
 });
