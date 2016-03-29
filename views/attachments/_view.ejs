@@ -4,10 +4,10 @@
   <ul>
     <% attachments.forEach(function(attachment) { %>
       <li class="attachment">
-        <span class="attachment-info"><a href="<%= attachmentBaseUrl %>/<%= attachment.filename %>"><%= attachment.filename %></a> <span class="uploaded">(Uploaded <%= formatDate(attachment.mtime) %>)</span></span>
-        <form method="post" action="<%= attachmentBaseUrl %>/<%= attachment.filename %>">
+        <span class="attachment-info"><a href="<%= attachmentBaseUrl %>/<%= encodeURIComponent(attachment.filename) %>"><%= attachment.filename %></a> <span class="uploaded">(Uploaded <%= formatDate(attachment.mtime) %>)</span></span>
+        <form method="post" action="<%= attachmentBaseUrl %>/<%= encodeURIComponent(attachment.filename) %>">
           <% if (!readOnly) { %>
-            <button onclick="clipboardCopy('attachment://<%= attachment.filename %>'); return false;">
+            <button onclick="clipboardCopy('attachment://<%= encodeURIComponent(attachment.filename) %>'); return false;">
               <img class="attachment-options" title="Copy URL for <%= attachment.filename %>" src="/images/copy.png" />
             </button>
             <input type="hidden" name="action" value="delete" />
