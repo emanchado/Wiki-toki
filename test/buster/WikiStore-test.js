@@ -443,6 +443,22 @@ describe("Share page", function() {
             expect(actualPageName).toEqual(pageName);
         });
     });
+
+    it("should be able to reach a renamed page with the same share id", function() {
+        var self = this,
+            pageName = "OswaldoPetterson",
+            newPageName = "OswaldoSamuelson",
+            shareId;
+
+        return self.store.sharePage(pageName).then(function(id) {
+            shareId = id;
+            return self.store.renamePage(pageName, newPageName);
+        }).then(function() {
+            return self.store.pageNameForShareId(shareId);
+        }).then(function(actualPageName) {
+            expect(actualPageName).toEqual(newPageName);
+        });
+    });
 });
 
 describe("Attachments", function() {
