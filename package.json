@@ -11,11 +11,10 @@
     "errorhandler": "^1.3.0",
     "express-layout": "^0.1.0",
     "formidable": "^1.0.17",
-
-    "less":    "^2.5.0",
-    "ejs":     "^2.3.0",
-    "q":       "^1.1.0",
-    "glob":    "^5.0.0"
+    "less": "^3.0.2",
+    "ejs": "^2.3.0",
+    "q": "^1.1.0",
+    "glob": "^5.0.0"
   },
   "devDependencies": {
     "testem": ">= 0.2",
@@ -25,7 +24,7 @@
     "nodemon": ">= 1.9.1"
   },
   "config": {
-    "store-directory":   "store",
+    "store-directory": "store",
     "secret-passphrase": "my secret passphrase you will never guess"
   },
   "scripts": {
