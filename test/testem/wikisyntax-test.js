@@ -226,14 +226,18 @@ describe("WikiSyntax", function() {
             expect(links[2].text).toEqual(url);
         });
 
-        it("should count ':' and '+' in URLs", function() {
+        it("should count ':', '+', and '@' in URLs", function() {
             var url = "https://launchpad.net:10443/ubuntu/+ppas";
-            var result = wikisyntax("This is a trickier autolink, to " + url);
+            var url2 = "https://tabletop.social/@hardcorenarrativist";
+            var result = wikisyntax("These are trickier autolinks, to " +
+                                    url + " and " + url2);
             this.dom.innerHTML = result;
             var links = this.dom.getElementsByTagName('a');
-            expect(links.length).toEqual(1);
+            expect(links.length).toEqual(2);
             expect(links[0].href).toEqual(url);
             expect(links[0].text).toEqual(url);
+            expect(links[1].href).toEqual(url2);
+            expect(links[1].text).toEqual(url2);
         });
 
         it("should include GET parameters in auto-linked URLs", function() {
