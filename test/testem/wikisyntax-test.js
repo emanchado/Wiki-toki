@@ -259,13 +259,14 @@ describe("WikiSyntax", function() {
 
         it("should include anchors in auto-linked URLs", function() {
             var urls = ["http://www.pac-rom.com/#Home",
-                        "http://www.pac-rom.com/#"];
-            var result = wikisyntax("Two links with anchor: " + urls[0] + " " +
-                                    urls[1]);
+                        "http://www.pac-rom.com/#",
+                        "https://www.youtube.com/watch?v=mHRF_-IOT2s#t=5m44s"];
+            var result = wikisyntax("Links with anchor: " + urls[0] + " " +
+                                    urls[1] + " " + urls[2]);
             this.dom.innerHTML = result;
             var links = this.dom.getElementsByTagName('a');
-            expect(links.length).toEqual(2);
-            [0,1].forEach(function(i) {
+            expect(links.length).toEqual(3);
+            [0, 1, 2].forEach(function(i) {
                 expect(links[i].href).toEqual(urls[i]);
                 expect(links[i].text).toEqual(urls[i]);
             });
